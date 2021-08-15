@@ -1,5 +1,5 @@
-# rasa-bot-template
-Rasa Bot Template source code repository.
+# landerbot-admin
+Landerbot Admin source code repository.
 
 # Build steps
 

@@ -12,5 +12,5 @@ target:
   port: 27017
 # GCloud upload
 gcloud:
-  bucket: "rasa-bot-template-db-backup"
+  bucket: "landerbot-admin-db-backup"
   keyFilePath: /secrets/db-backup-credentials.json
