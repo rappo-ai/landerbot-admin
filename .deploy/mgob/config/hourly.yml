@@ -1,0 +1,16 @@
+scheduler:
+  # run every hour
+  cron: "0 * * * *"
+  # number of backups to keep locally
+  retention: 5
+  # backup operation timeout in minutes
+  timeout: 60
+target:
+  # mongod IP or host name
+  host: "mongo"
+  # mongodb port
+  port: 27017
+# GCloud upload
+gcloud:
+  bucket: "rasa-bot-template-db-backup"
+  keyFilePath: /secrets/db-backup-credentials.json

@@ -1,0 +1,12 @@
+version: "2.0"
+
+intents:
+  - affirm
+
+nlu:
+  - intent: affirm
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - Yes

@@ -1,0 +1,66 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "rasa run",
+      "type": "python",
+      "request": "launch",
+      "cwd": "/app/dataset",
+      "python": "/opt/venv/bin/python",
+      "program": "/app/.devcontainer/scripts/launch-rasa-server.py",
+      "args": [
+        "run",
+        "-vv",
+        "--enable-api",
+        "--cors",
+        "'*'",
+        "--log-file",
+        "/app/server_logs.txt"
+      ],
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}/.venv",
+          "remoteRoot": "/opt/venv"
+        },
+        {
+          "localRoot": "${workspaceFolder}",
+          "remoteRoot": "/app"
+        },
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": false,
+    },
+    {
+      "name": "rasa run actions",
+      "type": "python",
+      "request": "launch",
+      "cwd": "/app/dataset",
+      "python": "/opt/venv/bin/python",
+      "program": "/opt/venv/bin/rasa",
+      "args": [
+        "run",
+        "actions",
+        "-vv",
+        "--auto-reload",
+      ],
+      "env": {
+        "RAPPO_ENV": "debug",
+      },
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}/.venv",
+          "remoteRoot": "/opt/venv"
+        },
+        {
+          "localRoot": "${workspaceFolder}",
+          "remoteRoot": "/app"
+        }
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": false,
+    }
+  ]
+}

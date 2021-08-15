@@ -1,0 +1,12 @@
+version: "2.0"
+
+intents:
+  - deny
+
+nlu:
+  - intent: deny
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - No

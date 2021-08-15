@@ -1,0 +1,22 @@
+version: "2.0"
+
+actions:
+  - action_help
+
+intents:
+  - help
+
+nlu:
+  - intent: help
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /help
+
+rules:
+  - rule: Command /help
+    steps:
+      - intent: help
+      - action: action_deactivate_loop
+      - action: action_help

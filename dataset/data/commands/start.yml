@@ -1,0 +1,27 @@
+version: "2.0"
+
+intents:
+  - start
+
+nlu:
+  - intent: start
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /start
+
+responses:
+  utter_greet:
+    - text: Hello!
+
+rules:
+  - rule: Command /start
+    steps:
+      - intent: start
+      - action: utter_greet
+      - action: action_main_menu
+  - rule: NLU Fallback
+    steps:
+      - intent: nlu_fallback
+      - action: action_main_menu
