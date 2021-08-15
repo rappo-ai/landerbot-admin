@@ -7,6 +7,9 @@ Rasa Bot Template source code repository.
 
 Copy .env.template to .env and set at-least the mandatory environment variables below.
 
+- MGOB_EXTERNAL_PORT - mongo db backup container external port; not used for devcontainer; defaults to 8090 [REQUIRED]
+- MONGO_EXPRESS_EXTERNAL_PORT - mongo express container external port; defaults to 8081 [REQUIRED]
+- RASA_EXTERNAL_DEBUG_PORT - rasa server external port; used only in devcontainer; defaults to 5005 [REQUIRED]
 - TELEGRAM_BOT_TOKEN - Telegram bot token [OPTIONAL]
 - TELEGRAM_BOT_USERNAME - Telegram bot username [OPTIONAL]
 - NGROK_AUTH_TOKEN - Ngrok auth token [OPTIONAL]

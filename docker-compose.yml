@@ -16,7 +16,7 @@ services:
       - mongo
     image: stefanprodan/mgob:latest
     ports:
-      - 8090:8090
+      - ${MGOB_EXTERNAL_PORT}:8090
     volumes:
       - ./.deploy/mgob/config:/config
       - ./.deploy/mgob/storage:/storage

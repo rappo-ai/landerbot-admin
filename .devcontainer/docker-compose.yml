@@ -10,4 +10,4 @@ services:
       - .:/app:cached
     command: /bin/sh -c "while sleep 1000; do :; done"
     ports:
-      - 5005:5005
+      - ${RASA_EXTERNAL_DEBUG_PORT}:5005
