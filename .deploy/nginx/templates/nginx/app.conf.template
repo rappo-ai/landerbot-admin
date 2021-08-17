@@ -40,6 +40,8 @@ server {
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
+    add_header 'Access-Control-Allow-Origin' '${ALLOWED_CLIENT_ORIGINS}';
+
     location / {
         proxy_pass  ${NGINX_CLIENT_PROXY_PASS};
         proxy_set_header    Host                $http_host;

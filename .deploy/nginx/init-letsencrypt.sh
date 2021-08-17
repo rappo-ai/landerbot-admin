@@ -25,9 +25,11 @@ escaped_admin_proxy_pass=$(printf '%s\n' "$admin_proxy_pass" | sed -e 's/[\/&]/\
 escaped_client_proxy_pass=$(printf '%s\n' "$client_proxy_pass" | sed -e 's/[\/&]/\\&/g')
 admin_domain=${NGINX_ADMIN_DOMAIN:-"admin.landerbot.rappo.ai"}
 client_domain=${NGINX_CLIENT_DOMAIN:-"client.landerbot.rappo.ai"}
+allowed_client_origins=${ALLOWED_CLIENT_ORIGINS:-"https://landerbot.rappo.ai"}
+escaped_allowed_client_origins=$(printf '%s\n' "$allowed_client_origins" | sed -e 's/[\/&]/\\&/g')
 
 echo "### Creating nginx app.conf from template ..."
-sed "s/\${NGINX_DOMAIN_LIST}/${domains_env}/g; s/\${NGINX_PRIMARY_DOMAIN}/${primary_domain}/g; s/\${NGINX_ADMIN_PROXY_PASS}/${escaped_admin_proxy_pass}/g; s/\${NGINX_CLIENT_PROXY_PASS}/${escaped_client_proxy_pass}/g; s/\${NGINX_ADMIN_DOMAIN}/${admin_domain}/g; s/\${NGINX_CLIENT_DOMAIN}/${client_domain}/g" ./templates/nginx/app.conf.template > ./data/nginx/app.conf
+sed "s/\${NGINX_DOMAIN_LIST}/${domains_env}/g; s/\${NGINX_PRIMARY_DOMAIN}/${primary_domain}/g; s/\${NGINX_ADMIN_PROXY_PASS}/${escaped_admin_proxy_pass}/g; s/\${NGINX_CLIENT_PROXY_PASS}/${escaped_client_proxy_pass}/g; s/\${NGINX_ADMIN_DOMAIN}/${admin_domain}/g; s/\${NGINX_CLIENT_DOMAIN}/${client_domain}/g; s/\${ALLOWED_CLIENT_ORIGINS}/${escaped_allowed_client_origins}/g" ./templates/nginx/app.conf.template > ./data/nginx/app.conf
 echo
 
 if [ -d "$data_path" ]; then

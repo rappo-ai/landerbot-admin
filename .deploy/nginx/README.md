@@ -24,6 +24,7 @@ application.
 - NGINX_CLIENT_PROXY_PASS - [OPTIONAL] the url to route all incoming requests on ports 80, 443 for NGINX_CLIENT_DOMAIN; for example "http://localhost:8080" to forward all incoming to localhost:8080; defaults to "http://rasa-client:5005"
 - LETSENCRYPT_EMAIL - [OPTIONAL] the email id to use for LetsEncrypt registration; defaults to "support@rappo.ai"
 - LETSENCRYPT_STAGING - [OPTIONAL] Set to 1 if you're testing your setup to avoid hitting request limits; defaults to 0
+- ALLOWED_CLIENT_ORIGINS - [OPTIONAL] allowed origins for CORS to client; defaults to "https://landerbot.rappo.ai"
 
 4. Run the init script:
 
