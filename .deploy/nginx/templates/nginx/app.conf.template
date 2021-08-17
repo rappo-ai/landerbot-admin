@@ -41,6 +41,7 @@ server {
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     add_header 'Access-Control-Allow-Origin' '${ALLOWED_CLIENT_ORIGINS}';
+    add_header 'Access-Control-Allow-Headers' '*';
 
     location / {
         proxy_pass  ${NGINX_CLIENT_PROXY_PASS};
