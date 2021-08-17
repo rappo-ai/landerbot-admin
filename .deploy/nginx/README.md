@@ -16,10 +16,13 @@ application.
 
 3. Modify configuration:
 - Create a .env file and add domains and email addresses using the env variables defined below 
-- NGINX_DOMAIN_LIST - [REQUIRED] the list of domains for nginx (also used by letsencrypt); each domain name should be separated by a space; the first domain name will be taken as the primary domain unless NGINX_PRIMARY_DOMAIN env variable is also provided; defaults to "example.org www.example.org"
-- NGINX_PRIMARY_DOMAIN - [OPTIONAL] the primary domain name to use for certificate registration; defaults to "example.org"
-- NGINX_PROXY_PASS - [REQUIRED] the url to route all incoming requests on ports 80, 443; for example "http://localhost:8080" to forward all incoming to localhost:8080; defaults to "http://example.org"
-- LETSENCRYPT_EMAIL - [OPTIONAL] the email id to use for LetsEncrypt registration; defaults to ""
+- NGINX_DOMAIN_LIST - [OPTIONAL] the list of domains for nginx (also used by letsencrypt); each domain name should be separated by a space; the first domain name will be taken as the primary domain unless NGINX_PRIMARY_DOMAIN env variable is also provided; defaults to "admin.landerbot.rappo.ai client.landerbot.rappo.ai"
+- NGINX_PRIMARY_DOMAIN - [OPTIONAL] the primary domain name to use for certificate registration; defaults to "admin.landerbot.rappo.ai"
+- NGINX_ADMIN_DOMAIN - [OPTIONAL] the admin domain name; defaults to "admin.landerbot.rappo.ai"
+- NGINX_CLIENT_DOMAIN - [OPTIONAL] the client domain name; defaults to "client.landerbot.rappo.ai"
+- NGINX_ADMIN_PROXY_PASS - [OPTIONAL] the url to route all incoming requests on ports 80, 443 for NGINX_ADMIN_DOMAIN; for example "http://localhost:8080" to forward all incoming to localhost:8080; defaults to "http://rasa-admin:5005"
+- NGINX_CLIENT_PROXY_PASS - [OPTIONAL] the url to route all incoming requests on ports 80, 443 for NGINX_CLIENT_DOMAIN; for example "http://localhost:8080" to forward all incoming to localhost:8080; defaults to "http://rasa-client:5005"
+- LETSENCRYPT_EMAIL - [OPTIONAL] the email id to use for LetsEncrypt registration; defaults to "support@rappo.ai"
 - LETSENCRYPT_STAGING - [OPTIONAL] Set to 1 if you're testing your setup to avoid hitting request limits; defaults to 0
 
 4. Run the init script:

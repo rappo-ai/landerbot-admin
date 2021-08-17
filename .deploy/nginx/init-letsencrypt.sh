@@ -12,18 +12,22 @@ else
 fi
 
 
-domains_env="${NGINX_DOMAIN_LIST:-"example.org www.example.org"}"
+domains_env="${NGINX_DOMAIN_LIST:-"admin.landerbot.rappo.ai client.landerbot.rappo.ai"}"
 IFS=' ' read -r -a domains <<< "$domains_env"
 primary_domain=${domains[0]:-$NGINX_PRIMARY_DOMAIN}
 rsa_key_size=4096
 data_path="./data/certbot"
-email=${LETSENCRYPT_EMAIL:-""} # Adding a valid address is strongly recommended
+email=${LETSENCRYPT_EMAIL:-"support@rappo.ai"} # Adding a valid address is strongly recommended
 staging=${LETSENCRYPT_STAGING:-0} # Set to 1 if you're testing your setup to avoid hitting request limits
-proxy_pass=${NGINX_PROXY_PASS:-"http://example.org"}
-escaped_proxy_pass=$(printf '%s\n' "$proxy_pass" | sed -e 's/[\/&]/\\&/g')
+admin_proxy_pass=${NGINX_ADMIN_PROXY_PASS:-"http://rasa-admin:5005"}
+client_proxy_pass=${NGINX_CLIENT_PROXY_PASS:-"http://rasa-client:5005"}
+escaped_admin_proxy_pass=$(printf '%s\n' "$admin_proxy_pass" | sed -e 's/[\/&]/\\&/g')
+escaped_client_proxy_pass=$(printf '%s\n' "$client_proxy_pass" | sed -e 's/[\/&]/\\&/g')
+admin_domain=${NGINX_ADMIN_DOMAIN:-"admin.landerbot.rappo.ai"}
+client_domain=${NGINX_CLIENT_DOMAIN:-"client.landerbot.rappo.ai"}
 
 echo "### Creating nginx app.conf from template ..."
-sed "s/\${NGINX_DOMAIN_LIST}/${domains_env}/g; s/\${NGINX_PRIMARY_DOMAIN}/${primary_domain}/g; s/\${NGINX_PROXY_PASS}/${escaped_proxy_pass}/g" ./templates/nginx/app.conf.template > ./data/nginx/app.conf
+sed "s/\${NGINX_DOMAIN_LIST}/${domains_env}/g; s/\${NGINX_PRIMARY_DOMAIN}/${primary_domain}/g; s/\${NGINX_ADMIN_PROXY_PASS}/${escaped_admin_proxy_pass}/g; s/\${NGINX_CLIENT_PROXY_PASS}/${escaped_client_proxy_pass}/g; s/\${NGINX_ADMIN_DOMAIN}/${admin_domain}/g; s/\${NGINX_CLIENT_DOMAIN}/${client_domain}/g" ./templates/nginx/app.conf.template > ./data/nginx/app.conf
 echo
 
 if [ -d "$data_path" ]; then
