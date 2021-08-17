@@ -32,7 +32,7 @@ application.
 
 5. Run the server:
 
-        docker-compose up
+        docker-compose up --build -d
 
 ## Got questions?
 Feel free to post questions in the comment section of the [accompanying guide](https://medium.com/@pentacent/nginx-and-lets-encrypt-with-docker-in-less-than-5-minutes-b4b8a60d3a71)
