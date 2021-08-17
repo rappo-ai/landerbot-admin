@@ -7,21 +7,22 @@ sudo mkswap /swapfile
 sudo swapon /swapfile
 
 # SSH deploy key setup
-# tbdrenzil - manually create ~/.ssh/id_gitdeploykey
-chmod 600 ~/.ssh/id_gitdeploykey
-eval "$(ssh-agent -s)"
-touch ~/.ssh/config
-echo "Host *
-  AddKeysToAgent yes
-  IdentityFile ~/.ssh/id_gitdeploykey
-" >> ~/.ssh/config
-ssh-add ~/.ssh/id_gitdeploykey
+mkdir ~/.ssh/git-keys
+curl https://gist.githubusercontent.com/vhermecz/4e2ae9468f2ff7532bf3f8155ac95c74/raw/f01b4b0c03d0b11dbbdc3967c7a566b2c6db17df/custom_keys_git_ssh --output ~/.ssh/custom_keys_git_ssh
+chmod 700 ~/.ssh/custom_keys_git_ssh
+export GIT_SSH_COMMAND=~/.ssh/custom_keys_git_ssh
 
-# Clone git repo
+# tbdrenzil - manually create ~/.ssh/git-keys/rappo-ai-landerbot-admin and ~/.ssh/git-keys/rappo-ai-landerbot-demo
+chmod 600 ~/.ssh/git-keys/rappo-ai-landerbot-admin
+chmod 600 ~/.ssh/git-keys/rappo-ai-landerbot-demo
+
+# Clone git repos
 cd ~
 ssh -o "StrictHostKeyChecking no" github.com
 git clone git@github.com:rappo-ai/landerbot-admin.git
 chmod -R g+w ~/landerbot-admin
+git clone git@github.com:rappo-ai/landerbot-demo.git
+chmod -R g+w ~/landerbot-demo
 
 # update credentials
 # tbdrenzil - manually create ~/landerbot-admin/.env
@@ -30,4 +31,6 @@ chmod -R g+w ~/landerbot-admin
 
 # launch docker
 cd ~/landerbot-admin
+docker-compose -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d
+cd ~/landerbot-demo
 docker-compose -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d

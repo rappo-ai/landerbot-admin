@@ -10,6 +10,7 @@ Copy .env.template to .env and set at-least the mandatory environment variables 
 - MGOB_EXTERNAL_PORT - mongo db backup container external port; not used for devcontainer; defaults to 8090 [REQUIRED]
 - MONGO_EXPRESS_EXTERNAL_PORT - mongo express container external port; defaults to 8081 [REQUIRED]
 - RASA_EXTERNAL_DEBUG_PORT - rasa server external port; used only in devcontainer; defaults to 5005 [REQUIRED]
+- LIVECHAT_CLIENT_BASE_URL - base url to the livechat client server; defaults to http://rasa-client:5005/webhooks/rest [REQUIRED]
 - TELEGRAM_BOT_TOKEN - Telegram bot token [OPTIONAL]
 - TELEGRAM_BOT_USERNAME - Telegram bot username [OPTIONAL]
 - NGROK_AUTH_TOKEN - Ngrok auth token [OPTIONAL]
