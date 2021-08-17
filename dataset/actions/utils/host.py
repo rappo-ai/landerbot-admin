@@ -1,4 +1,5 @@
 import logging
+import os
 from ruamel import yaml
 from typing import Dict, Optional, Text
 
@@ -15,3 +16,7 @@ def get_host_url(path: Optional[Text] = ""):
             return telegram_credentials.get("host_url", "") + path
         except Exception as exc:
             logger.error(exc)
+
+
+def get_livechat_client_url(path: Optional[Text] = ""):
+    return os.environ["LIVECHAT_CLIENT_BASE_URL"] + path

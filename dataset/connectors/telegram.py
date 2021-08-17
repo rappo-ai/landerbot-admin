@@ -27,6 +27,10 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
+from actions.utils.admin_config import get_admin_group_id
+from actions.utils.livechat import get_livechat, update_livechat
+from actions.utils.json import get_json_key
+
 
 def get_query_param(params, key):
     return next(iter(params[key]), "")
@@ -122,12 +126,14 @@ class TelegramOutput(TeleBot, OutputChannel):
         self.send_message(recipient_id, text, reply_markup=reply_markup)
 
     async def send_custom_json(
-        self, recipient_id: Text, json_message: Dict[Text, Any], **kwargs: Any
+        self, recipient_id: Text, json_message_arg: Dict[Text, Any], **kwargs: Any
     ) -> None:
         try:
-            json_message = deepcopy(json_message)
+            json_message = deepcopy(json_message_arg)
 
             recipient_id = json_message.pop("chat_id", recipient_id)
+            is_livechat_card = json_message.pop("is_livechat_card", False)
+            livechat_user_id = json_message.pop("livechat_user_id", "")
             reply_markup_json: Dict = json_message.pop("reply_markup", None)
             reply_markup = ReplyKeyboardRemove()
             if reply_markup_json:
@@ -218,7 +224,11 @@ class TelegramOutput(TeleBot, OutputChannel):
                     ]:
                         json_message["reply_markup"] = reply_markup
                     api_call = getattr(self, send_functions[params])
-                    api_call(recipient_id, *args, **json_message)
+                    response = api_call(recipient_id, *args, **json_message)
+                    if is_livechat_card:
+                        card_message_id = response.message_id
+                        update_livechat(livechat_user_id, card_message_id=card_message_id)
+
         except Exception as e:
             logger.error(e)
 
@@ -314,7 +324,7 @@ class TelegramInput(InputChannel):
                     update = Update.de_json(request_dict)
                     if not out_channel.get_me().username == self.verify:
                         logger.debug("Invalid access token, check it matches Telegram")
-                        return response.text("failed")
+                        return response.json({"status": "error"})
 
                     if self._is_button(update):
                         out_channel.answer_callback_query(update.callback_query.id)
@@ -325,19 +335,20 @@ class TelegramInput(InputChannel):
                         # skip edited messages for now
                         # msg = update.edited_message
                         # text = update.edited_message.text
-                        return response.text("success")
+                        return response.json({"status": "ok"})
                     else:
                         msg = update.message
                         message_type = self._get_message_type(msg)
                         chat_type = self._get_chat_type(msg)
                         # skip channels
                         if chat_type not in ["private", "group", "supergroup"]:
-                            return response.text("success")
-                        # ignore non-command messages in a group
-                        if chat_type in ["group", "supergroup"] and not getattr(
-                            msg, "text", ""
-                        ).startswith("/"):
-                            return response.text("success")
+                            return response.json({"status": "ok"})
+                        # ignore non-command and non-reply messages in a group
+                        if chat_type in ["group", "supergroup"] and not (
+                            getattr(msg, "text", "").startswith("/")
+                            or getattr(msg, "reply_to_message", "")
+                        ):
+                            return response.json({"status": "ok"})
                         if message_type == "text":
                             text = msg.text
                             if text.startswith("/"):
@@ -345,7 +356,9 @@ class TelegramInput(InputChannel):
                         elif message_type:
                             text = json.dumps(request_dict)
                         else:
-                            return response.text("success")
+                            return response.json({"status": "ok"})
+                        if getattr(msg, "reply_to_message"):
+                            text = "/livechat_reply"
                     sender_id = msg.chat.id
                     metadata = self.get_metadata(request) or {}
                     if text == (INTENT_MESSAGE_PREFIX + USER_INTENT_RESTART):
@@ -382,7 +395,42 @@ class TelegramInput(InputChannel):
                     logger.error(f"Exception when trying to handle message.{e}")
                     logger.debug(e, exc_info=True)
 
-                return response.text("success")
+                return response.json({"status": "ok"})
+
+        @telegram_webhook.route("/livechat/enabled", methods=["GET"])
+        async def livechat_enabled(request: Request) -> Any:
+            if request.method == "GET":
+                livechat = {}
+                try:
+                    user_id = get_query_param(request.args, "user_id")
+                    livechat = get_livechat(user_id=user_id) or {}
+                except Exception as e:
+                    logger.error(e)
+
+                return response.json({"enabled": livechat.get("enabled", True)})
+
+        @telegram_webhook.route("/livechat/message", methods=["POST"])
+        async def livechat_message(request: Request) -> Any:
+            if request.method == "POST":
+                try:
+                    request_dict = request.json
+                    sender_id = get_admin_group_id()
+                    disable_nlu_bypass = True
+                    await on_new_message(
+                        UserMessage(
+                            "/livechat_message",
+                            out_channel,
+                            sender_id,
+                            input_channel=self.name(),
+                            metadata=request_dict,
+                            disable_nlu_bypass=disable_nlu_bypass,
+                        )
+                    )
+                except Exception as e:
+                    logger.error(f"Exception in chat_webhook.{e}")
+                    logger.debug(e, exc_info=True)
+
+                return response.json({"status": "ok"})
 
         return telegram_webhook
 

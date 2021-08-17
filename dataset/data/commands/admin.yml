@@ -1,0 +1,33 @@
+version: "2.0"
+
+actions:
+  - action_command_groupid
+  - action_command_resetdb
+
+intents:
+  - groupid
+  - resetdb
+
+nlu:
+  - intent: groupid
+    metadata:
+      keyword_intent: true
+      match_condition: "start"
+    examples: |
+      - /groupid
+  - intent: resetdb
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /resetdb
+
+rules:
+  - rule: set admin group id
+    steps:
+      - intent: groupid
+      - action: action_command_groupid
+  - rule: reset db
+    steps:
+      - intent: resetdb
+      - action: action_command_resetdb

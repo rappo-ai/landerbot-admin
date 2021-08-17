@@ -11,3 +11,7 @@ services:
     command: /bin/sh -c "while sleep 1000; do :; done"
     ports:
       - ${RASA_EXTERNAL_DEBUG_PORT}:5005
+    networks:
+      default:
+        aliases:
+          - rasa-admin

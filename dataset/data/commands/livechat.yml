@@ -1,0 +1,33 @@
+version: "2.0"
+
+actions:
+  - action_livechat_message
+  - action_livechat_reply
+
+intents:
+  - livechat_message
+  - livechat_reply
+
+nlu:
+  - intent: livechat_message
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /livechat_message
+  - intent: livechat_reply
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /livechat_reply
+
+rules:
+  - rule: Command /livechat_message
+    steps:
+      - intent: livechat_message
+      - action: action_livechat_message
+  - rule: Command /livechat_reply
+    steps:
+      - intent: livechat_reply
+      - action: action_livechat_reply

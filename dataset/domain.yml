@@ -4,6 +4,10 @@ actions:
   - action_session_start
   - action_help
   - action_main_menu
+  - action_command_groupid
+  - action_command_resetdb
+  - action_livechat_message
+  - action_livechat_reply
 
 session_config:
   session_expiration_time: 60

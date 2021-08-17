@@ -18,5 +18,4 @@ rules:
   - rule: Command /help
     steps:
       - intent: help
-      - action: action_deactivate_loop
       - action: action_help
