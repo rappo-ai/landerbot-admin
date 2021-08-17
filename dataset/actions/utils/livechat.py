@@ -67,7 +67,7 @@ def post_livechat_message(user_id, message_text):
     try:
         url = get_livechat_client_url("/livechat/message")
         response = requests.post(
-            url, json={"sender": user_id, "text": message_text}, timeout=1
+            url, json={"sender": user_id, "text": message_text}, timeout=5
         )
         response_json = response.json()
     except Exception as e:
