@@ -17,5 +17,9 @@ services:
     command: ""
     depends_on:
       - mongo
+    networks:
+      default:
+        aliases:
+          - rasa-admin
 volumes:
   mongodb:
