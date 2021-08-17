@@ -10,7 +10,8 @@ sudo swapon /swapfile
 mkdir ~/.ssh/git-keys
 curl https://gist.githubusercontent.com/vhermecz/4e2ae9468f2ff7532bf3f8155ac95c74/raw/f01b4b0c03d0b11dbbdc3967c7a566b2c6db17df/custom_keys_git_ssh --output ~/.ssh/custom_keys_git_ssh
 chmod 700 ~/.ssh/custom_keys_git_ssh
-export GIT_SSH_COMMAND=~/.ssh/custom_keys_git_ssh
+echo "export GIT_SSH_COMMAND=~/.ssh/custom_keys_git_ssh" >> ~/.profile
+source ~/.profile
 
 # tbdrenzil - manually create ~/.ssh/git-keys/rappo-ai-landerbot-admin and ~/.ssh/git-keys/rappo-ai-landerbot-demo
 chmod 600 ~/.ssh/git-keys/rappo-ai-landerbot-admin
