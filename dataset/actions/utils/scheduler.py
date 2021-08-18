@@ -8,7 +8,10 @@ __scheduler = None
 
 jobstores = {
     "default": MongoDBJobStore(
-        host="mongodb://mongo:27017", username=None, password=None, authSource="admin"
+        host="mongodb://mongo-admin:27017",
+        username=None,
+        password=None,
+        authSource="admin",
     ),
 }
 # from rasa/core/jobs.py

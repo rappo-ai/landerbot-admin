@@ -1,9 +1,11 @@
+from datetime import datetime
 from typing import Any, Text, Dict, List
 from uuid import uuid4
 
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 
+from actions.utils.date import SERVER_TZINFO
 from actions.utils.livechat import (
     get_livechat,
     get_livechat_card,
@@ -34,13 +36,12 @@ class ActionLivechatReply(Action):
         post_livechat_message(user_id, message_text=message_text)
 
         sender_type = "admin"
-        sent_date = "17th August 2021"
         bot_message = {
             "id": uuid4(),
             "bot_id": tracker.sender_id,  # tbd - bot collection
             "text": message_text,
             "sender_type": sender_type,
-            "sent_date": sent_date,
+            "sent_ts": datetime.now(tz=SERVER_TZINFO).timestamp(),
         }
         update_livechat(user_id, bot_message)
         json_message = get_livechat_card(user_id=user_id)

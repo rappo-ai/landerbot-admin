@@ -3,10 +3,12 @@ version: "2.0"
 actions:
   - action_livechat_message
   - action_livechat_reply
+  - action_livechat_scroll
 
 intents:
   - livechat_message
   - livechat_reply
+  - livechat_scroll
 
 nlu:
   - intent: livechat_message
@@ -21,6 +23,12 @@ nlu:
       match_condition: "exact"
     examples: |
       - /livechat_reply
+  - intent: livechat_scroll
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /livechat_scroll
 
 rules:
   - rule: Command /livechat_message
@@ -31,3 +39,7 @@ rules:
     steps:
       - intent: livechat_reply
       - action: action_livechat_reply
+  - rule: Command /livechat_scroll
+    steps:
+      - intent: livechat_scroll
+      - action: action_livechat_scroll

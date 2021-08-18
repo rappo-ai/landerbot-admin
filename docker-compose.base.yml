@@ -4,12 +4,18 @@ services:
     image: mongo
     volumes:
       - mongodb:/data/db
+    networks:
+      default:
+        aliases:
+          - mongo-admin
   mongo-express:
     image: mongo-express
     ports:
       - ${MONGO_EXPRESS_EXTERNAL_PORT}:8081
     depends_on:
       - mongo
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://mongo-admin:27017
   rasa:
     volumes:
       - .:/app

@@ -8,6 +8,7 @@ actions:
   - action_command_resetdb
   - action_livechat_message
   - action_livechat_reply
+  - action_livechat_scroll
 
 session_config:
   session_expiration_time: 60

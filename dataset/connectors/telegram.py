@@ -134,6 +134,7 @@ class TelegramOutput(TeleBot, OutputChannel):
             recipient_id = json_message.pop("chat_id", recipient_id)
             is_livechat_card = json_message.pop("is_livechat_card", False)
             livechat_user_id = json_message.pop("livechat_user_id", "")
+            livechat_message_index = json_message.pop("livechat_message_index", -1)
             reply_markup_json: Dict = json_message.pop("reply_markup", None)
             reply_markup = ReplyKeyboardRemove()
             if reply_markup_json:
@@ -169,6 +170,8 @@ class TelegramOutput(TeleBot, OutputChannel):
                     ]
 
             send_functions = {
+                ("from_chat_id", "message_id"): "copy_message",
+                ("message_id",): "edit_message_text",
                 ("text",): "send_message",
                 ("photo",): "send_photo",
                 ("audio",): "send_audio",
@@ -193,7 +196,6 @@ class TelegramOutput(TeleBot, OutputChannel):
                     "currency",
                     "prices",
                 ): "send_invoice",
-                ("from_chat_id", "message_id"): "copy_message",
             }
 
             for params in send_functions.keys():
@@ -227,7 +229,14 @@ class TelegramOutput(TeleBot, OutputChannel):
                     response = api_call(recipient_id, *args, **json_message)
                     if is_livechat_card:
                         card_message_id = response.message_id
-                        update_livechat(livechat_user_id, card_message_id=card_message_id)
+                        message_index = livechat_message_index + 1
+                        update_livechat(
+                            livechat_user_id,
+                            card_message_id=card_message_id,
+                            card_message_id_index_map={
+                                str(card_message_id): message_index
+                            },
+                        )
 
         except Exception as e:
             logger.error(e)
@@ -397,7 +406,7 @@ class TelegramInput(InputChannel):
 
                 return response.json({"status": "ok"})
 
-        @telegram_webhook.route("/livechat/enabled", methods=["GET"])
+        @telegram_webhook.route("/livechat/enabled", methods=["GET", "POST"])
         async def livechat_enabled(request: Request) -> Any:
             if request.method == "GET":
                 livechat = {}
@@ -407,7 +416,17 @@ class TelegramInput(InputChannel):
                 except Exception as e:
                     logger.error(e)
 
-                return response.json({"enabled": livechat.get("enabled", True)})
+                return response.json({"enabled": livechat.get("enabled", False)})
+            elif request.method == "POST":
+                enabled = False
+                try:
+                    user_id = request.json.get("user_id")
+                    enabled = request.json.get("enabled")
+                    update_livechat(user_id=user_id, enabled=enabled)
+                except Exception as e:
+                    logger.error(e)
+
+                return response.json({"status": "ok"})
 
         @telegram_webhook.route("/livechat/message", methods=["POST"])
         async def livechat_message(request: Request) -> Any:

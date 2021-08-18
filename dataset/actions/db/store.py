@@ -11,7 +11,7 @@ class MongoDataStore:
 
     def __init__(
         self,
-        host: Optional[Text] = "mongodb://mongo:27017",
+        host: Optional[Text] = "mongodb://mongo-admin:27017",
         db: Optional[Text] = "rappo",
         username: Optional[Text] = None,
         password: Optional[Text] = None,
