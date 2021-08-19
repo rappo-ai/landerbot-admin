@@ -131,7 +131,6 @@ class TelegramOutput(TeleBot, OutputChannel):
         try:
             json_message = deepcopy(json_message_arg)
 
-            recipient_id = json_message.pop("chat_id", recipient_id)
             is_livechat_card = json_message.pop("is_livechat_card", False)
             livechat_user_id = json_message.pop("livechat_user_id", "")
             livechat_message_index = json_message.pop("livechat_message_index", -1)
@@ -171,7 +170,11 @@ class TelegramOutput(TeleBot, OutputChannel):
 
             send_functions = {
                 ("from_chat_id", "message_id"): "copy_message",
-                ("message_id",): "edit_message_text",
+                (
+                    "text",
+                    "chat_id",
+                    "message_id",
+                ): "edit_message_text",
                 ("text",): "send_message",
                 ("photo",): "send_photo",
                 ("audio",): "send_audio",
@@ -226,7 +229,11 @@ class TelegramOutput(TeleBot, OutputChannel):
                     ]:
                         json_message["reply_markup"] = reply_markup
                     api_call = getattr(self, send_functions[params])
-                    response = api_call(recipient_id, *args, **json_message)
+                    if send_functions[params] == "edit_message_text":
+                        response = api_call(*args, **json_message)
+                    else:
+                        recipient_id = json_message.pop("chat_id", recipient_id)
+                        response = api_call(recipient_id, *args, **json_message)
                     if is_livechat_card:
                         card_message_id = response.message_id
                         message_index = livechat_message_index + 1

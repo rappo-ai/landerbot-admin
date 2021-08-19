@@ -170,5 +170,4 @@ def scroll_livechat(card_message_id, direction):
     update_livechat(user_id, card_message_id_index_map=card_message_id_index_map)
     json_message = get_livechat_card(user_id, message_index=next_message_index)
     json_message["message_id"] = card_message_id
-    json_message.pop("reply_markup", None)
     return json_message

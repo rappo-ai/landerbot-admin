@@ -24,6 +24,7 @@ class ActionLivechatScroll(Action):
         metadata = tracker.latest_message.get("metadata")
         message_id = get_json_key(metadata, "callback_query.message.message_id")
         json_message = scroll_livechat(card_message_id=message_id, direction=direction)
+        json_message["chat_id"] = tracker.sender_id
         dispatcher.utter_message(json_message=json_message)
 
         return []
