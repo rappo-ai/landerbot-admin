@@ -93,7 +93,7 @@ def get_livechat_card(user_id, message_index: int = None):
     sent_date = format_livechat_ts(sent_ts)
     message_text = display_message.get("text")
     text = (
-        f"Chat #{user_id}\n"
+        f"Chat #{livechat_id}\n"
         + "\n"
         + f"{message_text}\n"
         + "\n"
@@ -125,7 +125,7 @@ def get_livechat_card(user_id, message_index: int = None):
     return {
         "text": text,
         "reply_markup": reply_markup,
-        "is_livechat_card": True,
+        "do_update_livechat_card": True,
         "livechat_user_id": livechat.get("user_id"),
         "livechat_message_index": message_index,
     }
@@ -169,5 +169,6 @@ def scroll_livechat(card_message_id, direction):
     card_message_id_index_map = {str(card_message_id): next_message_index}
     update_livechat(user_id, card_message_id_index_map=card_message_id_index_map)
     json_message = get_livechat_card(user_id, message_index=next_message_index)
+    json_message["do_update_livechat_card"] = False
     json_message["message_id"] = card_message_id
     return json_message
