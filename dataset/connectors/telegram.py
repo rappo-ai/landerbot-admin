@@ -429,7 +429,14 @@ class TelegramInput(InputChannel):
                 try:
                     user_id = request.json.get("user_id")
                     enabled = request.json.get("enabled")
-                    update_livechat(user_id=user_id, enabled=enabled)
+                    user_name = request.json.get("user_name")
+                    user_email = request.json.get("user_email")
+                    update_livechat(
+                        user_id=user_id,
+                        user_name=user_name,
+                        user_email=user_email,
+                        enabled=enabled,
+                    )
                 except Exception as e:
                     logger.error(e)
 

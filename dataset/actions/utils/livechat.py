@@ -1,6 +1,6 @@
 import logging
 import requests
-from typing import Dict
+from typing import Dict, Text
 
 from actions.utils.date import format_livechat_ts
 from actions.utils.host import get_livechat_client_url
@@ -20,6 +20,8 @@ def get_livechat(user_id=None, card_message_id=None):
 
 def update_livechat(
     user_id,
+    user_name: Text = "",
+    user_email: Text = "",
     message: Dict = None,
     card_message_id=None,
     card_message_id_index_map: Dict = None,
@@ -59,6 +61,11 @@ def update_livechat(
 
     if enabled is not None:
         set_data.update({"enabled": enabled})
+
+    if user_name:
+        set_data.update({"user_name": user_name})
+    if user_email:
+        set_data.update({"user_email": user_email})
 
     if set_data:
         update_data.update({"$set": set_data})

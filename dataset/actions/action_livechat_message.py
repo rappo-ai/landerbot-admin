@@ -29,7 +29,7 @@ class ActionLivechatMessage(Action):
             "sender_type": "user",
             "sent_ts": datetime.now(tz=SERVER_TZINFO).timestamp(),
         }
-        update_livechat(user_id, user_message)
+        update_livechat(user_id, message=user_message)
         json_message = get_livechat_card(user_id=user_id)
         dispatcher.utter_message(json_message=json_message)
 
