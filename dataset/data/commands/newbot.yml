@@ -1,0 +1,58 @@
+version: "2.0"
+
+actions:
+  - action_ask_newbot__name
+  - action_ask_newbot__platform
+  - action_on_newbot_form_done
+  - action_reset_newbot_form
+  - validate_newbot_form
+
+forms:
+  newbot_form:
+    ignored_intents:
+    required_slots:
+      newbot__name:
+        - type: from_text
+      newbot__platform:
+        - type: from_text
+
+intents:
+  - newbot
+
+nlu:
+  - intent: newbot
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /newbot
+
+rules:
+  - rule: Command /newbot
+    condition:
+      - slot_was_set:
+          - chat_type: private
+    steps:
+      - intent: newbot
+      - action: action_reset_newbot_form
+      - action: newbot_form
+      - active_loop: newbot_form
+  - rule: End /newbot form
+    condition:
+      - active_loop: newbot_form
+      - slot_was_set:
+          - chat_type: private
+    steps:
+      - action: newbot_form
+      - active_loop: null
+      - slot_was_set:
+          - requested_slot: null
+      - action: action_on_newbot_form_done
+
+slots:
+  newbot__name:
+    type: text
+  newbot__platform:
+    type: categorical
+    values:
+      - Web

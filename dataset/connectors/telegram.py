@@ -29,7 +29,6 @@ load_dotenv()
 
 from actions.utils.admin_config import get_admin_group_id
 from actions.utils.livechat import get_livechat, update_livechat
-from actions.utils.json import get_json_key
 
 
 def get_query_param(params, key):
@@ -429,7 +428,14 @@ class TelegramInput(InputChannel):
                 try:
                     user_id = request.json.get("user_id")
                     enabled = request.json.get("enabled")
-                    update_livechat(user_id=user_id, enabled=enabled)
+                    user_name = request.json.get("user_name")
+                    user_email = request.json.get("user_email")
+                    update_livechat(
+                        user_id=user_id,
+                        user_name=user_name,
+                        user_email=user_email,
+                        enabled=enabled,
+                    )
                 except Exception as e:
                     logger.error(e)
 

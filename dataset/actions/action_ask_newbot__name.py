@@ -4,9 +4,9 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 
 
-class ActionMainMenu(Action):
+class ActionAskNewBotName(Action):
     def name(self) -> Text:
-        return "action_main_menu"
+        return "action_ask_newbot__name"
 
     def run(
         self,
@@ -15,9 +15,6 @@ class ActionMainMenu(Action):
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
 
-        text = "I can help you create and manage Rappo Live Chat bots.\n\nYou can control me by sending these commands:\n\n/newbot - create a new bot\n/mybots - edit your bots"
-        json_message = {"text": text}
-
-        dispatcher.utter_message(json_message=json_message)
+        text = "Please enter the name of the bot."
 
         return []

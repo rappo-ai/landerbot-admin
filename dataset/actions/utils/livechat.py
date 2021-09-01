@@ -24,6 +24,8 @@ def update_livechat(
     card_message_id=None,
     card_message_id_index_map: Dict = None,
     enabled=None,
+    user_name=None,
+    user_email=None,
 ):
     update_data = {}
 
@@ -59,6 +61,12 @@ def update_livechat(
 
     if enabled is not None:
         set_data.update({"enabled": enabled})
+
+    if user_name is not None:
+        set_data.update({"user_name": user_name})
+
+    if user_email is not None:
+        set_data.update({"user_email": user_email})
 
     if set_data:
         update_data.update({"$set": set_data})
