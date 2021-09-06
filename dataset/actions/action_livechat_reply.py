@@ -35,12 +35,11 @@ class ActionLivechatReply(Action):
 
         post_livechat_message(user_id, message_text=message_text)
 
-        sender_type = "admin"
         bot_message = {
             "id": uuid4(),
             "bot_id": tracker.sender_id,  # tbd - bot collection
             "text": message_text,
-            "sender_type": sender_type,
+            "sender_type": "admin",
             "sent_ts": datetime.now(tz=SERVER_TZINFO).timestamp(),
         }
         update_livechat(user_id, message=bot_message, enabled=True)

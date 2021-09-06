@@ -2,9 +2,11 @@ import logging
 import requests
 from typing import Dict, Text
 
-from actions.utils.date import format_livechat_ts
-from actions.utils.host import get_livechat_client_url
 from actions.db.store import db
+
+# from actions.utils.date import format_livechat_ts
+from actions.utils.host import get_livechat_client_url
+from actions.utils.name import random_animal_name
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +22,7 @@ def get_livechat(user_id=None, card_message_id=None):
 
 def update_livechat(
     user_id,
-    user_name: Text = "",
-    user_email: Text = "",
+    user_metadata: Dict = None,
     message: Dict = None,
     card_message_id=None,
     card_message_id_index_map: Dict = None,
@@ -29,7 +30,7 @@ def update_livechat(
 ):
     update_data = {}
 
-    livechat = db.livechat.find_one({"user_id": user_id})
+    livechat = db.livechat.find_one({"user_id": user_id}) or {}
 
     set_data = {}
     push_data = {}
@@ -38,6 +39,9 @@ def update_livechat(
         set_data.update(
             {
                 "user_id": user_id,
+                "user_metadata": {
+                    "user_name": random_animal_name(),
+                },
                 "enabled": enabled or False,
                 "card_message_ids": [],
                 "card_message_id_index_map": {},
@@ -62,10 +66,13 @@ def update_livechat(
     if enabled is not None:
         set_data.update({"enabled": enabled})
 
-    if user_name:
-        set_data.update({"user_name": user_name})
-    if user_email:
-        set_data.update({"user_email": user_email})
+    if user_metadata:
+        if set_data.get("user_metadata"):
+            set_data["user_metadata"].update(**user_metadata)
+        else:
+            merged_user_metadata = livechat.get("user_metadata", {})
+            merged_user_metadata.update(user_metadata)
+            set_data.update({"user_metadata": merged_user_metadata})
 
     if set_data:
         update_data.update({"$set": set_data})
@@ -82,13 +89,14 @@ def update_livechat(
 
 def get_livechat_card(user_id, message_index: int = None):
     livechat = db.livechat.find_one({"user_id": user_id})
-    livechat_id = livechat.get("_id")
+    # livechat_id = livechat.get("_id")
+    user_metadata = livechat.get("user_metadata", {})
     messages = livechat.get("messages")
     num_messages = len(messages)
     if not (livechat and messages and num_messages):
         return
 
-    if message_index is None:
+    """if message_index is None:
         message_index = num_messages - 1
     if message_index < 0:
         message_index = 0
@@ -128,10 +136,23 @@ def get_livechat_card(user_id, message_index: int = None):
             ]
         ],
         "type": "inline",
-    }
+    }"""
+
+    card_text = ""
+    card_text = card_text + f"Chat with {user_metadata.get('user_name')}\n\n"
+    message_index = 0
+    for message in reversed(messages):
+        sender_type = str(message.get("sender_type")).capitalize()
+        card_text = card_text + f"{sender_type}: {message.get('text')}\n"
+    card_text = (
+        card_text
+        + "\n"
+        + f"Location: {user_metadata.get('location')}\nDevice: {user_metadata.get('device')}\nBrowser: {user_metadata.get('browser')}\n"
+    )
+
     return {
-        "text": text,
-        "reply_markup": reply_markup,
+        "text": card_text,
+        # "reply_markup": reply_markup,
         "do_update_livechat_card": True,
         "livechat_user_id": livechat.get("user_id"),
         "livechat_message_index": message_index,
@@ -143,7 +164,7 @@ def post_livechat_message(user_id, message_text):
     try:
         url = get_livechat_client_url("/livechat/message")
         response = requests.post(
-            url, json={"sender": user_id, "text": message_text}, timeout=5
+            url, json={"sender_id": user_id, "text": message_text}, timeout=5
         )
         response_json = response.json()
     except Exception as e:

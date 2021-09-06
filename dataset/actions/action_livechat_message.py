@@ -21,16 +21,23 @@ class ActionLivechatMessage(Action):
     ) -> List[Dict[Text, Any]]:
 
         metadata = tracker.latest_message.get("metadata")
-        user_id = metadata.get("sender")
-        user_message = {
-            "id": uuid4(),
-            "user_id": user_id,
-            "text": metadata.get("text"),
-            "sender_type": "user",
-            "sent_ts": datetime.now(tz=SERVER_TZINFO).timestamp(),
-        }
-        update_livechat(user_id, message=user_message)
-        json_message = get_livechat_card(user_id=user_id)
-        dispatcher.utter_message(json_message=json_message)
+        user_id = metadata.get("sender_id")
+        sender_type = metadata.get("sender_type", "user")
+        message_text = metadata.get("message_text")
+        if message_text:
+            user_message = {
+                "id": uuid4(),
+                "user_id": user_id,
+                "text": message_text,
+                "sender_type": sender_type,
+                "sent_ts": datetime.now(tz=SERVER_TZINFO).timestamp(),
+            }
+            update_livechat(user_id, message=user_message)
+        user_metadata = metadata.get("user_metadata")
+        if user_metadata:
+            update_livechat(user_id, user_metadata=user_metadata)
+        if metadata.get("send_notification", True):
+            json_message = get_livechat_card(user_id=user_id)
+            dispatcher.utter_message(json_message=json_message)
 
         return []
