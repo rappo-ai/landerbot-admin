@@ -32,8 +32,6 @@ class ActionLivechatReply(Action):
         livechat = get_livechat(card_message_id=reply_to_message_id)
         user_id = livechat.get("user_id")
 
-        post_livechat_message(user_id, message_text=message_text)
-
         bot_message = {
             "id": uuid4(),
             "bot_id": tracker.sender_id,  # tbd - bot collection
@@ -42,5 +40,7 @@ class ActionLivechatReply(Action):
             "sent_ts": datetime.now(tz=SERVER_TZINFO).timestamp(),
         }
         update_livechat(user_id, message=bot_message, enabled=True)
+
+        post_livechat_message(user_id, message_text=message_text)
 
         return []

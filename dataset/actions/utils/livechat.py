@@ -33,26 +33,28 @@ def update_livechat(
 ):
     update_data = {}
 
-    livechat = db.livechat.find_one({"user_id": user_id}) or {}
-
-    set_data = {}
-    push_data = {}
+    livechat = db.livechat.find_one({"user_id": user_id})
 
     if not livechat:
-        set_data.update(
+        livechat_id = db.livechat.insert_one(
             {
                 "user_id": user_id,
                 "user_metadata": {
                     "user_name": random_animal_name(),
+                    "lifecycle_stage": "subscriber",
                 },
-                "enabled": enabled or False,
-                "online": online or False,
-                "visible": visible or False,
+                "enabled": False,
+                "online": False,
+                "visible": False,
                 "card_message_ids": [],
                 "card_message_id_index_map": {},
                 "sessions": [],
-            }
-        )
+            },
+        ).inserted_id
+        livechat = db.livechat.find_one({"_id": livechat_id})
+
+    set_data = {}
+    push_data = {}
 
     if message:
         messages_to_add = [message]
@@ -63,11 +65,7 @@ def update_livechat(
         push_data.update({"card_message_ids": {"$each": card_message_ids_to_add}})
 
     if card_message_id_index_map:
-        db.livechat.update_one(
-            {"user_id": user_id},
-            [{"$set": {"card_message_id_index_map": card_message_id_index_map}}],
-            upsert=True,
-        )
+        set_data.update({"card_message_id_index_map": card_message_id_index_map})
 
     if enabled is not None:
         set_data.update({"enabled": enabled})
@@ -86,12 +84,9 @@ def update_livechat(
         set_data.update({"visible": visible})
 
     if user_metadata:
-        if set_data.get("user_metadata"):
-            set_data["user_metadata"].update(**user_metadata)
-        else:
-            merged_user_metadata = livechat.get("user_metadata", {})
-            merged_user_metadata.update(user_metadata)
-            set_data.update({"user_metadata": merged_user_metadata})
+        merged_user_metadata = livechat.get("user_metadata", {})
+        merged_user_metadata.update(user_metadata)
+        set_data.update({"user_metadata": merged_user_metadata})
 
     if set_data:
         update_data.update({"$set": set_data})
@@ -113,6 +108,8 @@ def get_livechat_card(user_id, notification_type="transcript"):
 
     user_name = user_metadata.get("user_name") + f" #{str(user_id)[-7:]}"
     card_text = ""
+
+    reply_markup = {}
 
     if notification_type == "transcript":
         card_text = card_text + f"Chat with {user_name}\n\n"
@@ -145,28 +142,69 @@ def get_livechat_card(user_id, notification_type="transcript"):
         sessions = livechat.get("sessions", [])
         num_sessions = len(sessions)
 
+        lifecycle_stage = user_metadata.get("lifecycle_stage", "subscriber")
+        lead_status = (
+            "✅ Qualified Lead"
+            if lifecycle_stage == "lead"
+            else (
+                "❓ New Visitor" if lifecycle_stage == "subscriber" else "❌ Unqualified"
+            )
+        )
+
         card_text = (
             card_text
             + "\n"
-            + f"Status: {chat_status}\nLocation: {location}\nBrowser: {browser}\nReferrer: {referrer}\nSessions: {num_sessions}\nDevice: {device}\n"
+            + f"Status: {chat_status}\nLocation: {location}\nBrowser: {browser}\nReferrer: {referrer}\nSessions: {num_sessions}\nLead Status: {lead_status}\nDevice: {device}\n"
         )
+
+        reply_markup = {
+            "keyboard": [
+                [
+                    {
+                        "title": "Refresh",
+                        "payload": f"/refresh",
+                    },
+                ],
+                [
+                    {
+                        "title": "↩️ Greet",
+                        "payload": f'/quick{{"d":"greet"}}',
+                    },
+                    {
+                        "title": "↩️ Close",
+                        "payload": f'/quick{{"d":"close"}}',
+                    },
+                ],
+                [
+                    {
+                        "title": "✅ Qualified Lead",
+                        "payload": f'/tag{{"d":"lead"}}',
+                    },
+                    {
+                        "title": "❌ Unqualified",
+                        "payload": f'/tag{{"d":"unqualified"}}',
+                    },
+                ],
+            ],
+            "type": "inline",
+        }
     elif notification_type == "latest_user_message":
         for message in reversed(messages):
             if message.get("sender_type") == "user":
                 card_text = f"{message.get('text')}\n\nSent by {user_name}"
                 break
 
-    reply_markup = {
-        "keyboard": [
-            [
-                {
-                    "title": "Refresh",
-                    "payload": f"/livechat_refresh",
-                },
-            ]
-        ],
-        "type": "inline",
-    }
+        reply_markup = {
+            "keyboard": [
+                [
+                    {
+                        "title": "Expand",
+                        "payload": f"/livechat_refresh",
+                    },
+                ]
+            ],
+            "type": "inline",
+        }
 
     return {
         "text": card_text,

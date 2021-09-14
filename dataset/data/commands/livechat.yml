@@ -2,15 +2,19 @@ version: "2.0"
 
 actions:
   - action_livechat_message
+  - action_livechat_quick_response
   - action_livechat_refresh
   - action_livechat_reply
   - action_livechat_scroll
+  - action_livechat_tag
 
 intents:
   - livechat_message
-  - livechat_refresh
   - livechat_reply
   - livechat_scroll
+  - quick
+  - refresh
+  - tag
 
 nlu:
   - intent: livechat_message
@@ -19,12 +23,6 @@ nlu:
       match_condition: "exact"
     examples: |
       - /livechat_message
-  - intent: livechat_refresh
-    metadata:
-      keyword_intent: true
-      match_condition: "exact"
-    examples: |
-      - /livechat_refresh
   - intent: livechat_reply
     metadata:
       keyword_intent: true
@@ -37,16 +35,30 @@ nlu:
       match_condition: "exact"
     examples: |
       - /livechat_scroll
+  - intent: quick
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /quick
+  - intent: refresh
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /refresh
+  - intent: tag
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /tag
 
 rules:
   - rule: Command /livechat_message
     steps:
       - intent: livechat_message
       - action: action_livechat_message
-  - rule: Command /livechat_refresh
-    steps:
-      - intent: livechat_refresh
-      - action: action_livechat_refresh
   - rule: Command /livechat_reply
     steps:
       - intent: livechat_reply
@@ -55,3 +67,15 @@ rules:
     steps:
       - intent: livechat_scroll
       - action: action_livechat_scroll
+  - rule: Command /quick
+    steps:
+      - intent: quick
+      - action: action_livechat_quick_response
+  - rule: Command /refresh
+    steps:
+      - intent: refresh
+      - action: action_livechat_refresh
+  - rule: Command /tag
+    steps:
+      - intent: tag
+      - action: action_livechat_tag

@@ -7,9 +7,11 @@ actions:
   - action_command_groupid
   - action_command_resetdb
   - action_livechat_message
+  - action_livechat_quick_response
   - action_livechat_refresh
   - action_livechat_reply
   - action_livechat_scroll
+  - action_livechat_tag
 
 session_config:
   session_expiration_time: 60
