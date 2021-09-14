@@ -133,9 +133,12 @@ class TelegramOutput(TeleBot, OutputChannel):
 
             do_update_livechat_card = json_message.pop("do_update_livechat_card", False)
             livechat_user_id = json_message.pop("livechat_user_id", "")
-            livechat_message_index = json_message.pop("livechat_message_index", -1)
             reply_markup_json: Dict = json_message.pop("reply_markup", None)
-            reply_markup = ReplyKeyboardRemove()
+            reply_markup = (
+                ReplyKeyboardRemove()
+                if json_message.pop("remove_reply_markup", True)
+                else None
+            )
             if reply_markup_json:
                 keyboard_type = reply_markup_json.get("type", "reply")
                 if keyboard_type == "reply":
@@ -221,12 +224,16 @@ class TelegramOutput(TeleBot, OutputChannel):
                             document_file_type,
                         )
                     args = [json_message.pop(p) for p in params]
-                    if send_functions[params] not in [
-                        "send_media_group",
-                        "send_game",
-                        "send_chat_action",
-                        "send_invoice",
-                    ]:
+                    if (
+                        send_functions[params]
+                        not in [
+                            "send_media_group",
+                            "send_game",
+                            "send_chat_action",
+                            "send_invoice",
+                        ]
+                        and reply_markup
+                    ):
                         json_message["reply_markup"] = reply_markup
                     api_call = getattr(self, send_functions[params])
                     if send_functions[params] == "edit_message_text":
@@ -236,13 +243,9 @@ class TelegramOutput(TeleBot, OutputChannel):
                         response = api_call(recipient_id, *args, **json_message)
                     if do_update_livechat_card:
                         card_message_id = response.message_id
-                        message_index = livechat_message_index + 1
                         update_livechat(
                             livechat_user_id,
                             card_message_id=card_message_id,
-                            card_message_id_index_map={
-                                str(card_message_id): message_index
-                            },
                         )
 
         except Exception as e:
@@ -413,6 +416,29 @@ class TelegramInput(InputChannel):
 
                 return response.json({"status": "ok"})
 
+        @telegram_webhook.route("/livechat/message", methods=["POST"])
+        async def livechat_message(request: Request) -> Any:
+            if request.method == "POST":
+                try:
+                    request_dict = request.json
+                    sender_id = get_admin_group_id()
+                    disable_nlu_bypass = True
+                    await on_new_message(
+                        UserMessage(
+                            "/livechat_message",
+                            out_channel,
+                            sender_id,
+                            input_channel=self.name(),
+                            metadata=request_dict,
+                            disable_nlu_bypass=disable_nlu_bypass,
+                        )
+                    )
+                except Exception as e:
+                    logger.error(f"Exception in chat_webhook.{e}")
+                    logger.debug(e, exc_info=True)
+
+                return response.json({"status": "ok"})
+
         @telegram_webhook.route("/livechat/enabled", methods=["GET", "POST"])
         async def livechat_enabled(request: Request) -> Any:
             if request.method == "GET":
@@ -438,26 +464,35 @@ class TelegramInput(InputChannel):
 
                 return response.json({"status": "ok"})
 
-        @telegram_webhook.route("/livechat/message", methods=["POST"])
-        async def livechat_message(request: Request) -> Any:
+        @telegram_webhook.route("/livechat/online", methods=["POST"])
+        async def livechat_online(request: Request) -> Any:
             if request.method == "POST":
+                online = False
                 try:
-                    request_dict = request.json
-                    sender_id = get_admin_group_id()
-                    disable_nlu_bypass = True
-                    await on_new_message(
-                        UserMessage(
-                            "/livechat_message",
-                            out_channel,
-                            sender_id,
-                            input_channel=self.name(),
-                            metadata=request_dict,
-                            disable_nlu_bypass=disable_nlu_bypass,
-                        )
+                    user_id = request.json.get("user_id")
+                    online = request.json.get("online")
+                    update_livechat(
+                        user_id=user_id,
+                        online=online,
                     )
                 except Exception as e:
-                    logger.error(f"Exception in chat_webhook.{e}")
-                    logger.debug(e, exc_info=True)
+                    logger.error(e)
+
+                return response.json({"status": "ok"})
+
+        @telegram_webhook.route("/livechat/visible", methods=["POST"])
+        async def livechat_visible(request: Request) -> Any:
+            if request.method == "POST":
+                visible = False
+                try:
+                    user_id = request.json.get("user_id")
+                    visible = request.json.get("visible")
+                    update_livechat(
+                        user_id=user_id,
+                        visible=visible,
+                    )
+                except Exception as e:
+                    logger.error(e)
 
                 return response.json({"status": "ok"})
 

@@ -8,7 +8,6 @@ from rasa_sdk.executor import CollectingDispatcher
 from actions.utils.date import SERVER_TZINFO
 from actions.utils.livechat import (
     get_livechat,
-    get_livechat_card,
     post_livechat_message,
     update_livechat,
 )
@@ -43,7 +42,5 @@ class ActionLivechatReply(Action):
             "sent_ts": datetime.now(tz=SERVER_TZINFO).timestamp(),
         }
         update_livechat(user_id, message=bot_message, enabled=True)
-        json_message = get_livechat_card(user_id=user_id)
-        dispatcher.utter_message(json_message=json_message)
 
         return []

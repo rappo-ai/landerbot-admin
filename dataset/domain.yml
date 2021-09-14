@@ -7,6 +7,7 @@ actions:
   - action_command_groupid
   - action_command_resetdb
   - action_livechat_message
+  - action_livechat_refresh
   - action_livechat_reply
   - action_livechat_scroll
 

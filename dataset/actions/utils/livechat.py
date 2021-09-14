@@ -1,10 +1,11 @@
+from datetime import datetime
 import logging
 import requests
-from typing import Dict, Text
+from typing import Dict
 
 from actions.db.store import db
 
-# from actions.utils.date import format_livechat_ts
+from actions.utils.date import SERVER_TZINFO
 from actions.utils.host import get_livechat_client_url
 from actions.utils.name import random_animal_name
 
@@ -27,6 +28,8 @@ def update_livechat(
     card_message_id=None,
     card_message_id_index_map: Dict = None,
     enabled=None,
+    online=None,
+    visible=None,
 ):
     update_data = {}
 
@@ -43,8 +46,11 @@ def update_livechat(
                     "user_name": random_animal_name(),
                 },
                 "enabled": enabled or False,
+                "online": online or False,
+                "visible": visible or False,
                 "card_message_ids": [],
                 "card_message_id_index_map": {},
+                "sessions": [],
             }
         )
 
@@ -65,6 +71,19 @@ def update_livechat(
 
     if enabled is not None:
         set_data.update({"enabled": enabled})
+
+    if online is not None:
+        set_data.update({"online": online})
+        if online:
+            sessions_to_add = [{"start_ts": datetime.now(tz=SERVER_TZINFO).timestamp()}]
+            push_data.update({"sessions": {"$each": sessions_to_add, "$position": 0}})
+        else:
+            set_data.update(
+                {"sessions.0.end_ts": datetime.now(tz=SERVER_TZINFO).timestamp()}
+            )
+
+    if visible is not None:
+        set_data.update({"visible": visible})
 
     if user_metadata:
         if set_data.get("user_metadata"):
@@ -87,75 +106,73 @@ def update_livechat(
         )
 
 
-def get_livechat_card(user_id, message_index: int = None):
+def get_livechat_card(user_id, notification_type="transcript"):
     livechat = db.livechat.find_one({"user_id": user_id})
-    # livechat_id = livechat.get("_id")
     user_metadata = livechat.get("user_metadata", {})
-    messages = livechat.get("messages")
-    num_messages = len(messages)
-    if not (livechat and messages and num_messages):
-        return
+    messages = livechat.get("messages") or []
 
-    """if message_index is None:
-        message_index = num_messages - 1
-    if message_index < 0:
-        message_index = 0
-    if message_index >= num_messages:
-        message_index = num_messages - 1
-    display_message = messages[message_index]
-    sender_type = display_message.get("sender_type")
-    sent_ts = display_message.get("sent_ts")
-    sent_date = format_livechat_ts(sent_ts)
-    message_text = display_message.get("text")
-    text = (
-        f"Chat #{livechat_id}\n"
-        + "\n"
-        + f"{message_text}\n"
-        + "\n"
-        + f"Sent by {sender_type} on {sent_date}\n"
-    )
+    user_name = user_metadata.get("user_name") + f" #{str(user_id)[-7:]}"
+    card_text = ""
+
+    if notification_type == "transcript":
+        card_text = card_text + f"Chat with {user_name}\n\n"
+        for message in reversed(messages):
+            sender_type = str(message.get("sender_type")).capitalize()
+            card_text = card_text + f"{sender_type}: {message.get('text')}\n"
+
+        chat_status = "🟢 Online" if livechat.get("online", False) else "🔴 Offline"
+        if livechat.get("online") == True and livechat.get("visible") == True:
+            chat_status = chat_status + " + 📖 Open"
+        if livechat.get("online") == True and livechat.get("enabled") == True:
+            chat_status = chat_status + " + ❤️ Live"
+
+        browser_data = user_metadata.get("browser_data", {})
+        browser = (
+            browser_data.get("browserName", "?")
+            + " "
+            + browser_data.get("fullVersion", "?")
+        )
+        device = browser_data.get("userAgent", "?")
+
+        location_data = user_metadata.get("location_data", {})
+        location = (
+            location_data.get("city", "?") + ", " + location_data.get("country", "?")
+        )
+
+        referrer_data = user_metadata.get("referrer_data", {})
+        referrer = referrer_data.get("referrer", "?")
+
+        sessions = livechat.get("sessions", [])
+        num_sessions = len(sessions)
+
+        card_text = (
+            card_text
+            + "\n"
+            + f"Status: {chat_status}\nLocation: {location}\nBrowser: {browser}\nReferrer: {referrer}\nSessions: {num_sessions}\nDevice: {device}\n"
+        )
+    elif notification_type == "latest_user_message":
+        for message in reversed(messages):
+            if message.get("sender_type") == "user":
+                card_text = f"{message.get('text')}\n\nSent by {user_name}"
+                break
+
     reply_markup = {
         "keyboard": [
             [
                 {
-                    "title": "<<<",
-                    "payload": f'/livechat_scroll{{"d":"start"}}',
-                },
-                {
-                    "title": "<",
-                    "payload": f'/livechat_scroll{{"d":"previous"}}',
-                },
-                {
-                    "title": ">",
-                    "payload": f'/livechat_scroll{{"d":"next"}}',
-                },
-                {
-                    "title": ">>>",
-                    "payload": f'/livechat_scroll{{"d":"end"}}',
+                    "title": "Refresh",
+                    "payload": f"/livechat_refresh",
                 },
             ]
         ],
         "type": "inline",
-    }"""
-
-    card_text = ""
-    card_text = card_text + f"Chat with {user_metadata.get('user_name')}\n\n"
-    message_index = 0
-    for message in reversed(messages):
-        sender_type = str(message.get("sender_type")).capitalize()
-        card_text = card_text + f"{sender_type}: {message.get('text')}\n"
-    card_text = (
-        card_text
-        + "\n"
-        + f"Location: {user_metadata.get('location')}\nDevice: {user_metadata.get('device')}\nBrowser: {user_metadata.get('browser')}\n"
-    )
+    }
 
     return {
         "text": card_text,
-        # "reply_markup": reply_markup,
+        "reply_markup": reply_markup,
         "do_update_livechat_card": True,
         "livechat_user_id": livechat.get("user_id"),
-        "livechat_message_index": message_index,
     }
 
 

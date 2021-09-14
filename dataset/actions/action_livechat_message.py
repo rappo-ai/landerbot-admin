@@ -36,8 +36,14 @@ class ActionLivechatMessage(Action):
         user_metadata = metadata.get("user_metadata")
         if user_metadata:
             update_livechat(user_id, user_metadata=user_metadata)
-        if metadata.get("send_notification", True):
-            json_message = get_livechat_card(user_id=user_id)
+
+        send_notification = metadata.get("send_notification")
+        if send_notification:
+            notification_type = metadata.get("notification_type", "transcript")
+            json_message = get_livechat_card(
+                user_id=user_id, notification_type=notification_type
+            )
+            json_message["remove_reply_markup"] = False
             dispatcher.utter_message(json_message=json_message)
 
         return []
