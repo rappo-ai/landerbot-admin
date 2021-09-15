@@ -140,9 +140,11 @@ def get_livechat_card(user_id, notification_type="transcript", message_id=None):
             + " "
             + browser_data.get("fullVersion", "?")
         )
-        device = browser_data.get("form_factor", "?")
+
+        wurfl_data = user_metadata.get("wurfl_data", {})
+        device = wurfl_data.get("form_factor", "?")
         if device != "?":
-            device = device + f" ({browser_data.get('complete_device_name', '?')})"
+            device = device + f" ({wurfl_data.get('complete_device_name', '?')})"
 
         location_data = user_metadata.get("location_data", {})
         location = (
