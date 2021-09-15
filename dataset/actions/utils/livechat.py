@@ -140,7 +140,9 @@ def get_livechat_card(user_id, notification_type="transcript", message_id=None):
             + " "
             + browser_data.get("fullVersion", "?")
         )
-        device = browser_data.get("userAgent", "?")
+        device = browser_data.get("form_factor", "?")
+        if device != "?":
+            device = device + f" ({browser_data.get('complete_device_name', '?')})"
 
         location_data = user_metadata.get("location_data", {})
         location = (
@@ -165,7 +167,7 @@ def get_livechat_card(user_id, notification_type="transcript", message_id=None):
         card_text = (
             card_text
             + "\n"
-            + f"Status: {chat_status}\nLocation: {location}\nBrowser: {browser}\nReferrer: {referrer}\nSessions: {num_sessions}\nLead Status: {lead_status}\nDevice: {device}\n"
+            + f"Status: {chat_status}\nLocation: {location}\nLead Status: {lead_status}\nDevice: {device}\nBrowser: {browser}\nReferrer: {referrer}\nSessions: {num_sessions}\n"
         )
 
         reply_markup = {
@@ -209,7 +211,7 @@ def get_livechat_card(user_id, notification_type="transcript", message_id=None):
             "keyboard": [
                 [
                     {
-                        "title": "Expand",
+                        "title": "🔍 Expand",
                         "payload": f"/refresh",
                     },
                 ]
