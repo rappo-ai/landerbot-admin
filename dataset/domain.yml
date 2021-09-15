@@ -13,7 +13,6 @@ actions:
   - action_livechat_quick_response
   - action_livechat_refresh
   - action_livechat_reply
-  - action_livechat_scroll
   - action_livechat_tag
   - action_stats
 

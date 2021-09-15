@@ -260,34 +260,3 @@ def post_livechat_message(user_id, message_text):
         logger.error(e)
 
     return response_json
-
-
-def scroll_livechat(card_message_id, direction):
-    livechat = get_livechat(card_message_id=card_message_id)
-    user_id = livechat.get("user_id")
-    total_messages = len(livechat.get("messages", []))
-    next_message_index = livechat.get("card_message_id_index_map", {}).get(
-        str(card_message_id), 0
-    )
-    if direction == "start":
-        next_message_index = 0
-    elif direction == "previous":
-        next_message_index = next_message_index - 1
-    elif direction == "next":
-        next_message_index = next_message_index + 1
-    elif direction == "end":
-        next_message_index = total_messages - 1
-
-    if next_message_index < 0:
-        next_message_index = 0
-    if next_message_index >= total_messages:
-        next_message_index = total_messages - 1
-
-    card_message_id_index_map = {str(card_message_id): next_message_index}
-    update_livechat(user_id, card_message_id_index_map=card_message_id_index_map)
-    json_message = get_livechat_card(
-        user_id, message_index=next_message_index, message_id=card_message_id
-    )
-    json_message["do_update_livechat_card"] = False
-    json_message["message_id"] = card_message_id
-    return json_message
