@@ -47,8 +47,12 @@ def format_chats_message(chats, selector):
             chats_keyboard,
             [
                 {
-                    "title": "Refresh",
+                    "title": "🔄 Refresh",
                     "payload": f'/chats{{"s":"{selector}"}}',
+                },
+                {
+                    "title": "↩️ Back",
+                    "payload": f"/chats",
                 },
             ],
         ],

@@ -172,17 +172,17 @@ def get_livechat_card(user_id, notification_type="transcript", message_id=None):
             "keyboard": [
                 [
                     {
-                        "title": "Refresh",
+                        "title": "🔄 Refresh",
                         "payload": f"/refresh",
                     },
                 ],
                 [
                     {
-                        "title": "↩️ Greet",
+                        "title": "🙋 Greet",
                         "payload": f'/quick{{"d":"greet"}}',
                     },
                     {
-                        "title": "↩️ Close",
+                        "title": "👋 Close",
                         "payload": f'/quick{{"d":"close"}}',
                     },
                 ],
