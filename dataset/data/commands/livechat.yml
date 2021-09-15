@@ -7,7 +7,6 @@ actions:
   - action_livechat_quick_response
   - action_livechat_refresh
   - action_livechat_reply
-  - action_livechat_scroll
   - action_livechat_tag
   - action_stats
 
@@ -16,7 +15,6 @@ intents:
   - export
   - livechat_message
   - livechat_reply
-  - livechat_scroll
   - quick
   - refresh
   - stats
@@ -47,12 +45,6 @@ nlu:
       match_condition: "exact"
     examples: |
       - /livechat_reply
-  - intent: livechat_scroll
-    metadata:
-      keyword_intent: true
-      match_condition: "exact"
-    examples: |
-      - /livechat_scroll
   - intent: quick
     metadata:
       keyword_intent: true
@@ -95,10 +87,6 @@ rules:
     steps:
       - intent: livechat_reply
       - action: action_livechat_reply
-  - rule: Command /livechat_scroll
-    steps:
-      - intent: livechat_scroll
-      - action: action_livechat_scroll
   - rule: Command /quick
     steps:
       - intent: quick
