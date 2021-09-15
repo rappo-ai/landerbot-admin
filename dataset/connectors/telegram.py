@@ -500,8 +500,7 @@ class TelegramInput(InputChannel):
             url=self.webhook_url, drop_pending_updates=self.drop_pending_updates
         )
         commands = [
-            BotCommand("menu", "Go to main menu"),
-            BotCommand("help", "Contact support"),
+            BotCommand("chats", "List chats"),
         ]
         channel.set_my_commands(commands)
 
