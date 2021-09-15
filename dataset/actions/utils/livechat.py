@@ -1,3 +1,4 @@
+from bson.objectid import ObjectId
 from datetime import datetime
 import logging
 import requests
@@ -16,14 +17,14 @@ db.livechat.create_index("user_id")
 
 
 def get_livechat(
+    id=None,
     user_id=None,
-    card_message_id=None,
 ):
     query = {}
+    if id:
+        query.update({"_id": ObjectId(id)})
     if user_id:
         query.update({"user_id": user_id})
-    if card_message_id:
-        query.update({"card_message_ids": str(card_message_id)})
     return db.livechat.find_one(query)
 
 
@@ -46,9 +47,6 @@ def update_livechat(
     user_id,
     user_metadata: Dict = None,
     message: Dict = None,
-    card_message_id=None,
-    card_message_ids=None,
-    card_message_id_index_map: Dict = None,
     enabled=None,
     online=None,
     visible=None,
@@ -68,8 +66,6 @@ def update_livechat(
                 "enabled": False,
                 "online": False,
                 "visible": False,
-                "card_message_ids": [],
-                "card_message_id_index_map": {},
                 "sessions": [],
             },
         ).inserted_id
@@ -81,16 +77,6 @@ def update_livechat(
     if message:
         messages_to_add = [message]
         push_data.update({"messages": {"$each": messages_to_add}})
-
-    if card_message_id:
-        card_message_ids_to_add = [str(card_message_id)]
-        push_data.update({"card_message_ids": {"$each": card_message_ids_to_add}})
-
-    if card_message_ids:
-        set_data.update({"card_message_ids": card_message_ids})
-
-    if card_message_id_index_map:
-        set_data.update({"card_message_id_index_map": card_message_id_index_map})
 
     if enabled is not None:
         set_data.update({"enabled": enabled})
@@ -243,8 +229,9 @@ def get_livechat_card(user_id, notification_type="transcript", message_id=None):
     return {
         "text": card_text,
         "reply_markup": reply_markup,
-        "do_update_livechat_card": True,
-        "livechat_user_id": livechat.get("user_id"),
+        "message_metadata": {
+            "livechat_id": str(livechat.get("_id")),
+        },
     }
 
 

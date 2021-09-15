@@ -7,12 +7,10 @@ from actions.utils.admin_config import get_admin_group_id
 from actions.utils.entity import get_entity
 from actions.utils.json import get_json_key
 from actions.utils.livechat import (
-    get_livechat,
     get_livechats,
     get_livechat_card,
-    update_livechat,
 )
-from actions.utils.message_metadata import set_message_metadata
+from actions.utils.message_metadata import update_message_metadata
 
 
 def get_menu_message():
@@ -87,19 +85,10 @@ class ActionListChats(Action):
         selector = get_entity(entities, "s")
         parent_selector = get_entity(entities, "p")
         user_id = get_entity(entities, "u")
-        is_back_from_chat_card = get_entity(entities, "b")
 
         metadata = tracker.latest_message.get("metadata", {})
         callback_query_message = get_json_key(metadata, "callback_query.message", {})
         callback_query_message_id = callback_query_message.get("message_id")
-        if is_back_from_chat_card:
-            livechat = get_livechat(card_message_id=callback_query_message_id) or {}
-            card_message_ids: List = livechat.get("card_message_ids", [])
-            if callback_query_message_id in card_message_ids:
-                card_message_ids.remove(callback_query_message_id)
-            update_user_id = livechat.get("user_id")
-            if update_user_id:
-                update_livechat(update_user_id, card_message_ids=card_message_ids)
 
         json_message = {}
         if selector == "all":
@@ -111,8 +100,8 @@ class ActionListChats(Action):
                 back_button_title = (
                     f"↩️ Back to {str(parent_selector).capitalize()} chats"
                 )
-                back_button_payload = f'/chats{{"s":"{parent_selector}","b":true}}'
-                set_message_metadata(
+                back_button_payload = f'/chats{{"s":"{parent_selector}"}}'
+                update_message_metadata(
                     message_id=callback_query_message_id,
                     metadata={
                         "back_button_title": back_button_title,

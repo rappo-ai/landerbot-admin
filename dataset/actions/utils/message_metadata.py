@@ -15,7 +15,7 @@ def get_message_metadata(
     return db.message_metadata.find_one({"message_id": message_id})
 
 
-def set_message_metadata(
+def update_message_metadata(
     message_id,
     metadata: Dict,
 ):

@@ -29,7 +29,7 @@ load_dotenv()
 
 from actions.utils.admin_config import get_admin_group_id
 from actions.utils.livechat import get_livechat, update_livechat
-from actions.utils.json import get_json_key
+from actions.utils.message_metadata import update_message_metadata
 
 
 def get_query_param(params, key):
@@ -131,8 +131,7 @@ class TelegramOutput(TeleBot, OutputChannel):
         try:
             json_message = deepcopy(json_message_arg)
 
-            do_update_livechat_card = json_message.pop("do_update_livechat_card", False)
-            livechat_user_id = json_message.pop("livechat_user_id", "")
+            message_metadata = json_message.pop("message_metadata", {})
             reply_markup_json: Dict = json_message.pop("reply_markup", None)
             reply_markup = (
                 ReplyKeyboardRemove()
@@ -241,12 +240,8 @@ class TelegramOutput(TeleBot, OutputChannel):
                     else:
                         recipient_id = json_message.pop("chat_id", recipient_id)
                         response = api_call(recipient_id, *args, **json_message)
-                    if do_update_livechat_card:
-                        card_message_id = response.message_id
-                        update_livechat(
-                            livechat_user_id,
-                            card_message_id=card_message_id,
-                        )
+                    if message_metadata:
+                        update_message_metadata(response.message_id, message_metadata)
 
         except Exception as e:
             logger.error(e)
