@@ -124,7 +124,7 @@ def get_livechat_card(user_id, notification_type="transcript", message_id=None):
 
     if notification_type == "transcript":
         card_text = card_text + f"Chat with {user_name}\n\n"
-        for message in reversed(messages):
+        for message in messages:
             sender_type = str(message.get("sender_type")).capitalize()
             card_text = card_text + f"{sender_type}: {message.get('text')}\n"
 
@@ -210,7 +210,7 @@ def get_livechat_card(user_id, notification_type="transcript", message_id=None):
                 [
                     {
                         "title": "Expand",
-                        "payload": f"/livechat_refresh",
+                        "payload": f"/refresh",
                     },
                 ]
             ],
