@@ -1,22 +1,40 @@
 version: "2.0"
 
 actions:
+  - action_list_chats
+  - action_export
   - action_livechat_message
   - action_livechat_quick_response
   - action_livechat_refresh
   - action_livechat_reply
   - action_livechat_scroll
   - action_livechat_tag
+  - action_stats
 
 intents:
+  - chats
+  - export
   - livechat_message
   - livechat_reply
   - livechat_scroll
   - quick
   - refresh
+  - stats
   - tag
 
 nlu:
+  - intent: chats
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /chats
+  - intent: export
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /export
   - intent: livechat_message
     metadata:
       keyword_intent: true
@@ -47,6 +65,12 @@ nlu:
       match_condition: "exact"
     examples: |
       - /refresh
+  - intent: stats
+    metadata:
+      keyword_intent: true
+      match_condition: "exact"
+    examples: |
+      - /stats
   - intent: tag
     metadata:
       keyword_intent: true
@@ -55,6 +79,14 @@ nlu:
       - /tag
 
 rules:
+  - rule: Command /chats
+    steps:
+      - intent: chats
+      - action: action_list_chats
+  - rule: Command /export
+    steps:
+      - intent: export
+      - action: action_export
   - rule: Command /livechat_message
     steps:
       - intent: livechat_message
@@ -75,6 +107,10 @@ rules:
     steps:
       - intent: refresh
       - action: action_livechat_refresh
+  - rule: Command /stats
+    steps:
+      - intent: stats
+      - action: action_stats
   - rule: Command /tag
     steps:
       - intent: tag

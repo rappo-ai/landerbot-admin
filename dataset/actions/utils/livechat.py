@@ -7,6 +7,7 @@ from actions.db.store import db
 
 from actions.utils.date import SERVER_TZINFO
 from actions.utils.host import get_livechat_client_url
+from actions.utils.message_metadata import get_message_metadata
 from actions.utils.name import random_animal_name
 
 logger = logging.getLogger(__name__)
@@ -14,11 +15,31 @@ logger = logging.getLogger(__name__)
 db.livechat.create_index("user_id")
 
 
-def get_livechat(user_id=None, card_message_id=None):
+def get_livechat(
+    user_id=None,
+    card_message_id=None,
+):
+    query = {}
     if user_id:
-        return db.livechat.find_one({"user_id": user_id})
+        query.update({"user_id": user_id})
     if card_message_id:
-        return db.livechat.find_one({"card_message_ids": str(card_message_id)})
+        query.update({"card_message_ids": str(card_message_id)})
+    return db.livechat.find_one(query)
+
+
+def get_livechats(
+    enabled=None,
+    online=None,
+    visible=None,
+):
+    query = {}
+    if enabled:
+        query.update({"enabled": enabled})
+    if online:
+        query.update({"online": online})
+    if visible:
+        query.update({"visible": visible})
+    return db.livechat.find(query)
 
 
 def update_livechat(
@@ -26,6 +47,7 @@ def update_livechat(
     user_metadata: Dict = None,
     message: Dict = None,
     card_message_id=None,
+    card_message_ids=None,
     card_message_id_index_map: Dict = None,
     enabled=None,
     online=None,
@@ -64,6 +86,9 @@ def update_livechat(
         card_message_ids_to_add = [str(card_message_id)]
         push_data.update({"card_message_ids": {"$each": card_message_ids_to_add}})
 
+    if card_message_ids:
+        set_data.update({"card_message_ids": card_message_ids})
+
     if card_message_id_index_map:
         set_data.update({"card_message_id_index_map": card_message_id_index_map})
 
@@ -101,12 +126,12 @@ def update_livechat(
         )
 
 
-def get_livechat_card(user_id, notification_type="transcript"):
+def get_livechat_card(user_id, notification_type="transcript", message_id=None):
     livechat = db.livechat.find_one({"user_id": user_id})
     user_metadata = livechat.get("user_metadata", {})
     messages = livechat.get("messages") or []
 
-    user_name = user_metadata.get("user_name") + f" #{str(user_id)[-7:]}"
+    user_name = user_metadata.get("user_name", "") + f" #{str(user_id)[-7:]}"
     card_text = ""
 
     reply_markup = {}
@@ -206,6 +231,15 @@ def get_livechat_card(user_id, notification_type="transcript"):
             "type": "inline",
         }
 
+    if message_id:
+        message_metadata = get_message_metadata(message_id) or {}
+        back_button_title = message_metadata.get("back_button_title")
+        back_button_payload = message_metadata.get("back_button_payload")
+        if back_button_title and back_button_payload:
+            reply_markup["keyboard"].append(
+                [{"title": back_button_title, "payload": back_button_payload}]
+            )
+
     return {
         "text": card_text,
         "reply_markup": reply_markup,
@@ -251,7 +285,9 @@ def scroll_livechat(card_message_id, direction):
 
     card_message_id_index_map = {str(card_message_id): next_message_index}
     update_livechat(user_id, card_message_id_index_map=card_message_id_index_map)
-    json_message = get_livechat_card(user_id, message_index=next_message_index)
+    json_message = get_livechat_card(
+        user_id, message_index=next_message_index, message_id=card_message_id
+    )
     json_message["do_update_livechat_card"] = False
     json_message["message_id"] = card_message_id
     return json_message

@@ -39,7 +39,9 @@ class ActionLivechatTag(Action):
 
         update_livechat(user_id, user_metadata=user_metadata)
 
-        json_message = get_livechat_card(user_id=user_id)
+        json_message = get_livechat_card(
+            user_id=user_id, message_id=callback_query_message_id
+        )
         json_message["message_id"] = callback_query_message_id
         json_message["chat_id"] = get_admin_group_id()
         json_message["remove_reply_markup"] = False

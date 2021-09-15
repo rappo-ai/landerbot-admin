@@ -6,12 +6,16 @@ actions:
   - action_main_menu
   - action_command_groupid
   - action_command_resetdb
+
+  - action_list_chats
+  - action_export
   - action_livechat_message
   - action_livechat_quick_response
   - action_livechat_refresh
   - action_livechat_reply
   - action_livechat_scroll
   - action_livechat_tag
+  - action_stats
 
 session_config:
   session_expiration_time: 60
