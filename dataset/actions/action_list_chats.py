@@ -212,7 +212,7 @@ class ActionListChats(Action):
         elif not selector:
             if user_id and callback_query_message_id:
                 back_button_title = (
-                    f"↩️ Back to {SELECTOR_DISPLAY_NAME[selector]} chats"
+                    f"↩️ Back to {SELECTOR_DISPLAY_NAME[parent_selector]} chats"
                 )
                 back_button_payload = (
                     f'/chats{{"s":"{parent_selector}", "i":{page_index}}}'
