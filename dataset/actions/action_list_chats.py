@@ -13,11 +13,11 @@ from actions.utils.livechat import (
 )
 from actions.utils.message_metadata import update_message_metadata
 
-ONLINE_SELECTOR = "online"
-ALL_SELECTOR = "all"
-NEW_VISITOR_SELECTOR = "new"
-QUALIFIED_LEAD_SELECTOR = "qual"
-UNQUALIFIED_SELECTOR = "unqual"
+ONLINE_SELECTOR = "o"
+ALL_SELECTOR = "a"
+NEW_VISITOR_SELECTOR = "n"
+QUALIFIED_LEAD_SELECTOR = "q"
+UNQUALIFIED_SELECTOR = "u"
 
 SELECTOR_DISPLAY_NAME = {
     ONLINE_SELECTOR: "Online",
@@ -111,18 +111,18 @@ def paginate_inline_button(
     return paginated_buttons
 
 
-def get_chat_inline_button(chat, selector):
+def get_chat_inline_button(chat, selector, page_index):
     return {
         "title": f"{get_json_key(chat, 'user_metadata.user_name', chat.get('user_id'))}",
-        "payload": f'/chats{{"p":"{selector}","u":"{chat.get("user_id")}"}}',
+        "payload": f'/chats{{"p":"{selector}","u":"{chat.get("user_id")}","i":{page_index}}}',
     }
 
 
 def format_chats_message(chats, selector, page_index):
-    ROW_WIDTH = 4
-    MAX_ROWS = 10
+    ROW_WIDTH = 2
+    MAX_ROWS = 2
     chats_keyboard = paginate_inline_button(
-        [get_chat_inline_button(c, selector) for c in chats],
+        [get_chat_inline_button(c, selector, page_index) for c in chats],
         selector,
         page_index,
         ROW_WIDTH,
@@ -135,7 +135,7 @@ def format_chats_message(chats, selector, page_index):
             [
                 {
                     "title": "🔄 Refresh",
-                    "payload": f'/chats{{"s":"{selector}"}}',
+                    "payload": f'/chats{{"s":"{selector}", "i":{page_index}}}',
                 },
                 {
                     "title": "↩️ Back",
@@ -210,7 +210,7 @@ class ActionListChats(Action):
         elif selector == NEW_VISITOR_SELECTOR:
             json_message = get_new_visitor_chats_message(page_index)
         elif not selector:
-            if user_id and callback_query_message_id:
+            if parent_selector and user_id and callback_query_message_id:
                 back_button_title = (
                     f"↩️ Back to {SELECTOR_DISPLAY_NAME[parent_selector]} chats"
                 )
