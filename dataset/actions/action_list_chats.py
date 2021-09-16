@@ -119,8 +119,8 @@ def get_chat_inline_button(chat, selector, page_index):
 
 
 def format_chats_message(chats, selector, page_index):
-    ROW_WIDTH = 2
-    MAX_ROWS = 2
+    ROW_WIDTH = 4
+    MAX_ROWS = 10
     chats_keyboard = paginate_inline_button(
         [get_chat_inline_button(c, selector, page_index) for c in chats],
         selector,
