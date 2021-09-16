@@ -163,7 +163,9 @@ class ActionListChats(Action):
                 back_button_title = (
                     f"↩️ Back to {str(parent_selector).capitalize()} chats"
                 )
-                back_button_payload = f'/chats{{"s":"{parent_selector}"}}'
+                back_button_payload = (
+                    f'/chats{{"s":"{parent_selector}", "i":{page_index}}}'
+                )
                 update_message_metadata(
                     message_id=callback_query_message_id,
                     metadata={
