@@ -1,6 +1,7 @@
 from bson.objectid import ObjectId
 from datetime import datetime
 import logging
+from pymongo import DESCENDING
 import requests
 from typing import Dict
 
@@ -40,7 +41,7 @@ def get_livechats(
         query.update({"online": online})
     if visible:
         query.update({"visible": visible})
-    return db.livechat.find(query)
+    return db.livechat.find(query).sort("_id", DESCENDING)
 
 
 def update_livechat(
