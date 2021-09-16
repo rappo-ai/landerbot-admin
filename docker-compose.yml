@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     command: |
       bash -c "
-      RAPPO_ENV=${RAPPO_ENV} rasa run actions -vv > /app/dataset/run_actions_logs.txt & HOST_URL=${HOST_URL} NGROK_AUTH_TOKEN=${NGROK_AUTH_TOKEN} NGROK_REGION=${NGROK_REGION} python /app/.devcontainer/scripts/launch-rasa-server.py run -vv --log-file /app/server_logs.txt
+      RAPPO_ENV=${RAPPO_ENV} rasa run actions -vv > /app/dataset/run_actions_logs.txt & HOST_URL=${HOST_URL} NGROK_AUTH_TOKEN=${NGROK_AUTH_TOKEN} NGROK_REGION=${NGROK_REGION} python /app/.devcontainer/scripts/launch-rasa-server.py run -v --log-file /app/server_logs.txt
       "
     environment: 
       HOME: "/tmp"

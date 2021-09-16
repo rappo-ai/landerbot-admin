@@ -335,6 +335,7 @@ class TelegramInput(InputChannel):
                 try:
                     disable_nlu_bypass = True
                     request_dict = request.json
+                    logger.info("INCOMING UPDATE: " + json.dumps(request_dict))
                     update = Update.de_json(request_dict)
                     if not out_channel.get_me().username == self.verify:
                         logger.debug("Invalid access token, check it matches Telegram")
