@@ -13,6 +13,20 @@ from actions.utils.livechat import (
 )
 from actions.utils.message_metadata import update_message_metadata
 
+ONLINE_SELECTOR = "online"
+ALL_SELECTOR = "all"
+NEW_VISITOR_SELECTOR = "new"
+QUALIFIED_LEAD_SELECTOR = "qual"
+UNQUALIFIED_SELECTOR = "unqual"
+
+SELECTOR_DISPLAY_NAME = {
+    ONLINE_SELECTOR: "Online",
+    ALL_SELECTOR: "All",
+    NEW_VISITOR_SELECTOR: "New Visitor",
+    QUALIFIED_LEAD_SELECTOR: "Qualified Lead",
+    UNQUALIFIED_SELECTOR: "Unqualified",
+}
+
 
 def get_menu_message():
     return {
@@ -21,12 +35,28 @@ def get_menu_message():
             "keyboard": [
                 [
                     {
-                        "title": "🟢 Online",
-                        "payload": f'/chats{{"s":"online"}}',
+                        "title": "🆕 New Visitor",
+                        "payload": f'/chats{{"s":"{NEW_VISITOR_SELECTOR}"}}',
                     },
                     {
+                        "title": "🟢 Online",
+                        "payload": f'/chats{{"s":"{ONLINE_SELECTOR}"}}',
+                    },
+                ],
+                [
+                    {
+                        "title": "✅ Qualified Lead",
+                        "payload": f'/chats{{"s":"{QUALIFIED_LEAD_SELECTOR}"}}',
+                    },
+                    {
+                        "title": "❌ Unqualified",
+                        "payload": f'/chats{{"s":"{UNQUALIFIED_SELECTOR}"}}',
+                    },
+                ],
+                [
+                    {
                         "title": "🔷 All",
-                        "payload": f'/chats{{"s":"all"}}',
+                        "payload": f'/chats{{"s":"{ALL_SELECTOR}"}}',
                     },
                 ],
             ],
@@ -117,19 +147,34 @@ def format_chats_message(chats, selector, page_index):
         "row_width": ROW_WIDTH,
     }
     return {
-        "text": f"{str(selector).capitalize()} chats: {'' if chats_keyboard else 'No chats found'}",
+        "text": f"{SELECTOR_DISPLAY_NAME[selector]} chats: {'' if chats_keyboard else 'No chats found'}",
         "reply_markup": reply_markup,
     }
 
 
 def get_all_chats_message(page_index):
     all_chats = get_livechats()
-    return format_chats_message(all_chats, "all", page_index)
+    return format_chats_message(all_chats, ALL_SELECTOR, page_index)
 
 
 def get_online_chats_message(page_index):
     online_chats = get_livechats(online=True)
-    return format_chats_message(online_chats, "online", page_index)
+    return format_chats_message(online_chats, ONLINE_SELECTOR, page_index)
+
+
+def get_qualified_chats_message(page_index):
+    qualified_chats = get_livechats(lifecycle_stage="lead")
+    return format_chats_message(qualified_chats, QUALIFIED_LEAD_SELECTOR, page_index)
+
+
+def get_unqualified_chats_message(page_index):
+    unqualified_chats = get_livechats(lifecycle_stage="unqualified")
+    return format_chats_message(unqualified_chats, UNQUALIFIED_SELECTOR, page_index)
+
+
+def get_new_visitor_chats_message(page_index):
+    new_visitor_chats = get_livechats(lifecycle_stage="subscriber")
+    return format_chats_message(new_visitor_chats, NEW_VISITOR_SELECTOR, page_index)
 
 
 class ActionListChats(Action):
@@ -154,10 +199,16 @@ class ActionListChats(Action):
         callback_query_message_id = callback_query_message.get("message_id")
 
         json_message = {}
-        if selector == "all":
+        if selector == ALL_SELECTOR:
             json_message = get_all_chats_message(page_index)
-        elif selector == "online":
+        elif selector == ONLINE_SELECTOR:
             json_message = get_online_chats_message(page_index)
+        elif selector == QUALIFIED_LEAD_SELECTOR:
+            json_message = get_qualified_chats_message(page_index)
+        elif selector == UNQUALIFIED_SELECTOR:
+            json_message = get_unqualified_chats_message(page_index)
+        elif selector == NEW_VISITOR_SELECTOR:
+            json_message = get_new_visitor_chats_message(page_index)
         elif not selector:
             if user_id and callback_query_message_id:
                 back_button_title = (

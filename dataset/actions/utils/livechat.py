@@ -33,6 +33,7 @@ def get_livechats(
     enabled=None,
     online=None,
     visible=None,
+    lifecycle_stage=None,
 ):
     query = {}
     if enabled:
@@ -41,6 +42,8 @@ def get_livechats(
         query.update({"online": online})
     if visible:
         query.update({"visible": visible})
+    if lifecycle_stage:
+        query.update({"user_metadata.lifecycle_stage": lifecycle_stage})
     return db.livechat.find(query).sort("_id", DESCENDING)
 
 
@@ -163,7 +166,7 @@ def get_livechat_card(user_id, notification_type="transcript", message_id=None):
             "✅ Qualified Lead"
             if lifecycle_stage == "lead"
             else (
-                "❓ New Visitor" if lifecycle_stage == "subscriber" else "❌ Unqualified"
+                "🆕 New Visitor" if lifecycle_stage == "subscriber" else "❌ Unqualified"
             )
         )
 
