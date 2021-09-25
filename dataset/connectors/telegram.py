@@ -460,6 +460,21 @@ class TelegramInput(InputChannel):
 
                 return response.json({"status": "ok"})
 
+        @telegram_webhook.route("/livechat/event", methods=["POST"])
+        async def livechat_event(request: Request) -> Any:
+            if request.method == "POST":
+                try:
+                    user_id = request.json.get("user_id")
+                    event = request.json.get("event")
+                    update_livechat(
+                        user_id=user_id,
+                        event=event,
+                    )
+                except Exception as e:
+                    logger.error(e)
+
+                return response.json({"status": "ok"})
+
         @telegram_webhook.route("/livechat/online", methods=["POST"])
         async def livechat_online(request: Request) -> Any:
             if request.method == "POST":
