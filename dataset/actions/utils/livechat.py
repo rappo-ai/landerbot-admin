@@ -288,8 +288,8 @@ def get_livechat_stats(
     for r in aggregation_result:
         livechat_stats = r
 
-    total_session_duration = livechat_stats["total_session_duration"]
-    total_sessions = livechat_stats["total_sessions"]
+    total_session_duration = livechat_stats.get("total_session_duration", 0)
+    total_sessions = livechat_stats.get("total_sessions", 0)
     if total_sessions:
         livechat_stats["session_duration"] = total_session_duration / total_sessions
     else:
