@@ -35,6 +35,8 @@ def get_livechats(
     online=None,
     visible=None,
     lifecycle_stage=None,
+    from_ts=None,
+    to_ts=None,
 ):
     query = {}
     if enabled:
@@ -45,6 +47,15 @@ def get_livechats(
         query.update({"visible": visible})
     if lifecycle_stage:
         query.update({"user_metadata.lifecycle_stage": lifecycle_stage})
+
+    ts_query = {}
+    if from_ts:
+        ts_query.update({"$gte": from_ts})
+    if to_ts:
+        ts_query.update({"$lt": to_ts})
+    if ts_query:
+        query.update({"sessions": {"$elemMatch": {"start_ts": ts_query}}})
+
     return db.livechat.find(query).sort("_id", DESCENDING)
 
 
