@@ -3,9 +3,7 @@ from rasa_sdk import Action, Tracker
 from rasa_sdk.events import SlotSet, SessionStarted, ActionExecuted, EventType
 from rasa_sdk.executor import CollectingDispatcher
 
-from actions.utils.admin_config import get_admin_group_id
 from actions.utils.json import get_json_key
-from actions.utils.markdown import escape_markdown, get_user_link
 from actions.utils.telegram import get_chat_type, get_first_name, get_user_id
 
 
