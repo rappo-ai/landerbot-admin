@@ -16,6 +16,7 @@ from actions.utils.livechat import (
     update_livechat,
 )
 from actions.utils.message_metadata import get_message_metadata
+from actions.utils.telegram import get_first_name
 
 
 class ActionLivechatQuickResponse(Action):
@@ -31,7 +32,6 @@ class ActionLivechatQuickResponse(Action):
 
         entities = tracker.latest_message.get("entities", [])
         selector = get_entity(entities, "d")
-        first_name = tracker.get_slot("first_name")
 
         metadata = tracker.latest_message.get("metadata")
         callback_query_message = get_json_key(metadata, "callback_query.message")
@@ -41,8 +41,16 @@ class ActionLivechatQuickResponse(Action):
         livechat = get_livechat(id=message_metadata.get("livechat_id"))
         user_id = livechat.get("user_id")
 
+        first_name = get_first_name(metadata)
+        greeting = (
+            f"You are now chatting with {first_name} from Rappo. "
+            if first_name
+            else "You are now chatting with the Rappo team. "
+        )
+        greeting += "Hi, how can I help you today?"
+
         quick_responses_map = {
-            "greet": f"Hi, you are chatting with {first_name} from Rappo.",
+            "greet": greeting,
             "close": f"Thank you for chatting with us. I hope we were able to help you out. If you have any other queries, do ping us and we'll get back to you right away.",
         }
         message_text = quick_responses_map.get(selector or "")
