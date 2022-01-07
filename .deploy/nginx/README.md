@@ -12,7 +12,7 @@ application.
 ## Installation
 1. [Install docker-compose](https://docs.docker.com/compose/install/#install-compose).
 
-2. Clone this repository: `git clone https://github.com/wmnnd/nginx-certbot.git .`
+2. Clone this repository: `git clone https://github.com/rappo-ai/landerbot-admin.git .`
 
 3. Modify configuration:
 - Create a .env file and add domains and email addresses using the env variables defined below 
