@@ -17,6 +17,7 @@ services:
     environment:
       - ME_CONFIG_MONGODB_URL=mongodb://mongo-admin:27017
   rasa:
+    user: root
     volumes:
       - .:/app
     entrypoint: ""
