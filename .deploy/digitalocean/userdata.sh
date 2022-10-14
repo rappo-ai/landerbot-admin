@@ -28,6 +28,7 @@ chmod -R g+w ~/landerbot-demo
 # update credentials
 # tbdrenzil - manually create ~/landerbot-admin/.env; Set RAPPO_ENV=prod, HOST_URL=https://admin.landerbot.rappo.ai, TELEGRAM_BOT_TOKEN and TELEGRAM_BOT_USERNAME
 # tbdrenzil - manually create ~/landerbot-admin/.deploy/nginx/.env from /landerbot-admin/.deploy/nginx/.env.template and update the env variables as needed
+# tbdrenzil - [THIS MAY BE OPTIONAL AND COULD BE SKIPPED] manually create ~/landerbot-demo/.env from the template; no need to change or set anything as this bot uses the REST connector, not Telegram
 # tbdrenzil - [OPTIONAL] manually add GCP service account json credentials to ~/landerbot-admin/.deploy/mgob/secrets/ and update bucket name in ~/landerbot-admin/.deploy/mgob/hourly.yml
 
 # launch docker
@@ -35,3 +36,6 @@ cd ~/landerbot-admin
 docker compose -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d
 cd ~/landerbot-demo
 docker compose -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d
+
+# manually update your DNS entries - add A records for admin and client endpoints (confingured in nginx env) pointing to your server IP
+# Run .deploy/nginx/init-letsencrypt.sh after launching landerbot-admin and landerbot-demo as it has dependencies on networks created by these
