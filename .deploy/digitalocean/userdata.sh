@@ -32,6 +32,6 @@ chmod -R g+w ~/landerbot-demo
 
 # launch docker
 cd ~/landerbot-admin
-docker-compose -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d
+docker compose -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d
 cd ~/landerbot-demo
-docker-compose -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d
+docker compose -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d

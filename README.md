@@ -24,7 +24,7 @@ Contact repo owner for help with 3rd party credentials.
 
 ### Docker Compose with Linux engine
 ```bash
-docker-compose -f docker-compose.base.yml -f docker-compose.yml up --build -d
+docker compose -f docker-compose.base.yml -f docker-compose.yml up --build -d
 ```
 
 ## Launch with debugging (Local)
