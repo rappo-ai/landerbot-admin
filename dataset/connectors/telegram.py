@@ -370,7 +370,7 @@ class TelegramInput(InputChannel):
                             return response.json({"status": "ok"})
                         if message_type == "text":
                             text = msg.text
-                            if text.startswith("/"):
+                            if text and text.startswith("/"):
                                 text = text.replace(f"@{self.verify}", "")
                         elif message_type:
                             text = json.dumps(request_dict)
