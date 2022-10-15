@@ -1,5 +1,6 @@
 import base64
 from copy import deepcopy
+from csv import excel
 from dotenv import load_dotenv
 import json
 import logging
@@ -283,28 +284,31 @@ class TelegramInput(InputChannel):
 
     @staticmethod
     def _get_message_type(message: Message) -> Text:
-        if not message:
-            return None
-        MESSAGE_TYPES = [
-            "text",
-            "animation",
-            "audio",
-            "document",
-            "photo",
-            "sticker",
-            "video",
-            "video_note",
-            "voice",
-            "contact",
-            "dice",
-            "game",
-            "poll",
-            "venue",
-            "location",
-        ]
-        for type in MESSAGE_TYPES:
-            if getattr(message, type):
-                return type
+        try:
+            if not message:
+                return None
+            MESSAGE_TYPES = [
+                "text",
+                "animation",
+                "audio",
+                "document",
+                "photo",
+                "sticker",
+                "video",
+                "video_note",
+                "voice",
+                "contact",
+                "dice",
+                "game",
+                "poll",
+                "venue",
+                "location",
+            ]
+            for type in MESSAGE_TYPES:
+                if getattr(message, type):
+                    return type
+        except:
+            pass
         return None
 
     @staticmethod
