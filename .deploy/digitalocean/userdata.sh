@@ -31,11 +31,12 @@ chmod -R g+w ~/landerbot-demo
 # tbdrenzil - [THIS MAY BE OPTIONAL AND COULD BE SKIPPED] manually create ~/landerbot-demo/.env from the template; no need to change or set anything as this bot uses the REST connector, not Telegram
 # tbdrenzil - [OPTIONAL] manually add GCP service account json credentials to ~/landerbot-admin/.deploy/mgob/secrets/ and update bucket name in ~/landerbot-admin/.deploy/mgob/hourly.yml
 
-# launch docker
+# launch admin and demo docker containers first
 cd ~/landerbot-admin
 docker-compose --env-file ./.env -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d
 cd ~/landerbot-demo
 docker-compose --env-file ./.env -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d
 
 # manually update your DNS entries - add A records for admin and client endpoints (confingured in nginx env) pointing to your server IP
-# Run .deploy/nginx/init-letsencrypt.sh after launching landerbot-admin and landerbot-demo as it has dependencies on networks created by these
+# run .deploy/nginx/init-letsencrypt.sh after launching landerbot-admin and landerbot-demo as it has dependencies on networks created by these
+# restart the admin container as the Telegram bot webhook needs to re-register once the nginx server and SSL certificate is up
