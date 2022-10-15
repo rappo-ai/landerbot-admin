@@ -33,9 +33,9 @@ chmod -R g+w ~/landerbot-demo
 
 # launch docker
 cd ~/landerbot-admin
-docker compose -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d
+docker-compose --env-file ./.env -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d
 cd ~/landerbot-demo
-docker compose -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d
+docker-compose --env-file ./.env -f docker-compose.base.yml -f docker-compose.yml up --build --force-recreate -d
 
 # manually update your DNS entries - add A records for admin and client endpoints (confingured in nginx env) pointing to your server IP
 # Run .deploy/nginx/init-letsencrypt.sh after launching landerbot-admin and landerbot-demo as it has dependencies on networks created by these
